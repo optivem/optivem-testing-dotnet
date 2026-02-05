@@ -1,2 +1,1 @@
-# optivem-testing-dotnet
-Optivem Testing (.NET)
+# Optivem Testing (.NET)
