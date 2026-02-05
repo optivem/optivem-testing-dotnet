@@ -16,16 +16,8 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Shouldly" Version="4.2.1" />
-  </ItemGroup>
-
-  <!-- In CI: Reference the published RC package from GitHub Packages -->
-  <ItemGroup Condition="'$(CI)' == 'true'">
+    <!-- Reference the published package from GitHub Packages (RC version) -->
     <PackageReference Include="Optivem.Testing" Version="*-rc.*" />
-  </ItemGroup>
-
-  <!-- Locally: Use project reference for development -->
-  <ItemGroup Condition="'$(CI)' != 'true'">
-    <ProjectReference Include="..\..\Optivem.Testing\Optivem.Testing.csproj" />
   </ItemGroup>
 
 </Project>
