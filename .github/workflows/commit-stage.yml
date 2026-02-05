@@ -5,21 +5,63 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  workflow_dispatch: # Allow manual triggering
+
+concurrency:
+  group: commit-stage
+  cancel-in-progress: true
 
 jobs:
-  build:
-
+  build-and-publish:
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      rc-version: ${{ steps.version.outputs.version }}
+    
     steps:
     - uses: actions/checkout@v4
+    
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
+    
+    - name: Generate RC version
+      id: version
+      run: |
+        VERSION="$(date +'%Y.%m.%d')-rc.${{ github.run_number }}"
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "Generated version: $VERSION"
+    
     - name: Restore dependencies
       run: dotnet restore
+    
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build --no-restore --configuration Release /p:Version="${{ steps.version.outputs.version }}"
+    
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test --no-build --configuration Release --verbosity normal
+    
+    - name: Pack NuGet package
+      run: dotnet pack Optivem.Testing/Optivem.Testing.csproj --no-build --configuration Release /p:PackageVersion="${{ steps.version.outputs.version }}" --output ./nupkg
+    
+    - name: Publish RC to GitHub Packages
+      run: dotnet nuget push ./nupkg/*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --skip-duplicate
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Create commit stage summary
+      run: |
+        echo "## ✅ Commit Stage Completed" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**RC Version Published:** \`${{ steps.version.outputs.version }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "🚀 **Actions Completed:**" >> $GITHUB_STEP_SUMMARY
+        echo "- Built and tested Optivem.Testing" >> $GITHUB_STEP_SUMMARY
+        echo "- Published RC to GitHub Packages" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Status:** ✅ RC ready for acceptance testing" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Next Step:** RC will be automatically tested in acceptance stage" >> $GITHUB_STEP_SUMMARY
