@@ -79,11 +79,30 @@ jobs:
         version: ${{ steps.validate.outputs.release-version }}
         max-attempts: '30'
         poll-interval: '10'
+
+    - name: Restore release smoke test dependencies (retry)
+      shell: pwsh
+      run: |
+        $maxAttempts = 5
+        for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
+          Write-Host "[$attempt/$maxAttempts] Restoring release smoke test dependencies..."
+          dotnet restore SystemTest/Optivem.Testing.SystemTest.SmokeTestRelease/Optivem.Testing.SystemTest.SmokeTestRelease.csproj --force --no-cache -p:Version="${{ steps.validate.outputs.release-version }}"
+          if ($LASTEXITCODE -eq 0) {
+            Write-Host "✅ Restore succeeded"
+            break
+          }
+          if ($attempt -eq $maxAttempts) {
+            Write-Host "❌ Restore failed after $maxAttempts attempts"
+            exit 1
+          }
+          Write-Host "⏳ Restore failed. Waiting 30s before retry..."
+          Start-Sleep -Seconds 30
+        }
     
     - name: Run release smoke tests (NuGet.org)
       run: |
         echo "🧪 Running release smoke tests..."
-        dotnet test SystemTest/Optivem.Testing.SystemTest.SmokeTestRelease/Optivem.Testing.SystemTest.SmokeTestRelease.csproj -p:Version="${{ steps.validate.outputs.release-version }}"
+        dotnet test SystemTest/Optivem.Testing.SystemTest.SmokeTestRelease/Optivem.Testing.SystemTest.SmokeTestRelease.csproj --no-restore -p:Version="${{ steps.validate.outputs.release-version }}"
     
     - name: Create Git tag
       uses: ./.github/actions/create-git-tag
