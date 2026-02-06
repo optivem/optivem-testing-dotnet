@@ -15,7 +15,7 @@
 
 .NOTES
     Exit code 0 = Package is available (condition met)
-    Exit code 1 = Package not available yet (keep polling)
+    Exit code 2 = Package not available yet (keep polling)
 #>
 
 param(
@@ -37,10 +37,10 @@ try {
         exit 0
     } else {
         Write-Host "⏳ Package not yet indexed on NuGet.org..." -ForegroundColor Yellow
-        exit 1
+        exit 2
     }
 }
 catch {
     Write-Host "⏳ Package not yet available on NuGet.org (may not exist or still indexing)..." -ForegroundColor Yellow
-    exit 1
+    exit 2
 }
