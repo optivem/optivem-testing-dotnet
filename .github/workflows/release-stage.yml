@@ -80,6 +80,11 @@ jobs:
         max-attempts: '30'
         poll-interval: '10'
     
+    - name: Run release smoke tests (NuGet.org)
+      run: |
+        echo "🧪 Running release smoke tests..."
+        dotnet test SystemTest/Optivem.Testing.SystemTest.SmokeTestRelease/Optivem.Testing.SystemTest.SmokeTestRelease.csproj -p:Version="${{ steps.validate.outputs.release-version }}"
+    
     - name: Create Git tag
       uses: ./.github/actions/create-git-tag
       with:
@@ -99,6 +104,7 @@ jobs:
           **Promoted Artifacts:**
           - Same exact package that passed testing
           - No rebuild - identical artifacts guaranteed
+          - ✅ Passed release smoke tests on NuGet.org
           - ✅ Automatically published to NuGet.org
           
           **Installation:**
@@ -124,8 +130,9 @@ jobs:
         Write-Host "📋 What happened:" -ForegroundColor Cyan
         Write-Host "1. ✅ Downloaded RC package from GitHub Packages" -ForegroundColor White
         Write-Host "2. ✅ Repacked and published to NuGet.org (same artifacts, no rebuild)" -ForegroundColor White
-        Write-Host "3. ✅ Created Git tag v${releaseVersion}" -ForegroundColor White
-        Write-Host "4. ✅ Created GitHub Release" -ForegroundColor White
+        Write-Host "3. ✅ Waited for NuGet.org indexing and ran smoke tests" -ForegroundColor White
+        Write-Host "4. ✅ Created Git tag v${releaseVersion}" -ForegroundColor White
+        Write-Host "5. ✅ Created GitHub Release" -ForegroundColor White
         Write-Host ""
         Write-Host "📋 Next Steps:" -ForegroundColor Cyan
         Write-Host "1. ⏳ Wait a few minutes for NuGet.org synchronization" -ForegroundColor White
@@ -143,6 +150,8 @@ jobs:
         echo "🚀 **Release Activities:**" >> $GITHUB_STEP_SUMMARY
         echo "- ✅ Downloaded RC package from GitHub Packages" >> $GITHUB_STEP_SUMMARY
         echo "- ✅ Repacked and published to NuGet.org" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Waited for NuGet.org indexing" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Ran release smoke tests" >> $GITHUB_STEP_SUMMARY
         echo "- ✅ Created Git tag v${{ steps.validate.outputs.release-version }}" >> $GITHUB_STEP_SUMMARY
         echo "- ✅ Created GitHub Release" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
