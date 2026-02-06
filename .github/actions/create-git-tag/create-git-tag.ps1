@@ -4,32 +4,32 @@
 .SYNOPSIS
     Creates and pushes a Git tag for a release
 
-.PARAMETER ReleaseVersion
-    The release version to tag
+.PARAMETER TagName
+    The git tag name to create (e.g., v1.0.3)
 
 .PARAMETER RcVersion
     The RC version that was promoted
 
 .EXAMPLE
-    .\create-git-tag.ps1 -ReleaseVersion "1.0.5" -RcVersion "1.0.5-rc.47"
+    .\create-git-tag.ps1 -TagName "v1.0.5" -RcVersion "1.0.5-rc.47"
 #>
 
 param(
     [Parameter(Mandatory=$true)]
-    [string]$ReleaseVersion,
+    [string]$TagName,
     
     [Parameter(Mandatory=$true)]
     [string]$RcVersion
 )
 
-Write-Host "🏷️ Creating Git tag v${ReleaseVersion}..." -ForegroundColor Blue
+Write-Host "🏷️ Creating Git tag ${TagName}..." -ForegroundColor Blue
 
 # Configure git user
 git config user.name "github-actions[bot]"
 git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
 # Create annotated tag
-git tag -a "v${ReleaseVersion}" -m "Release ${ReleaseVersion} (promoted from ${RcVersion})"
+git tag -a "${TagName}" -m "Release ${TagName} (promoted from ${RcVersion})"
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "❌ Failed to create tag" -ForegroundColor Red
@@ -37,11 +37,11 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 # Push tag to remote
-git push origin "v${ReleaseVersion}"
+git push origin "${TagName}"
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "❌ Failed to push tag" -ForegroundColor Red
     exit 1
 }
 
-Write-Host "✅ Git tag v${ReleaseVersion} created and pushed successfully" -ForegroundColor Green
+Write-Host "✅ Git tag ${TagName} created and pushed successfully" -ForegroundColor Green

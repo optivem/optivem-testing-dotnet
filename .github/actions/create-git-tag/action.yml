@@ -2,8 +2,8 @@ name: 'Create Git Tag'
 description: 'Creates and pushes a Git tag for a release'
 
 inputs:
-  release-version:
-    description: 'Release version to tag'
+  tag-name:
+    description: 'Git tag name to create (e.g., v1.0.3)'
     required: true
   rc-version:
     description: 'RC version that was promoted'
@@ -15,4 +15,4 @@ runs:
     - name: Create Git tag
       shell: pwsh
       run: |
-        ${{ github.action_path }}/create-git-tag.ps1 -ReleaseVersion "${{ inputs.release-version }}" -RcVersion "${{ inputs.rc-version }}"
+        ${{ github.action_path }}/create-git-tag.ps1 -TagName "${{ inputs.tag-name }}" -RcVersion "${{ inputs.rc-version }}"
