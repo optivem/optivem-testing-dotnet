@@ -8,7 +8,7 @@
     The git tag name to create (e.g., v1.0.3)
 
 .EXAMPLE
-    .\create-git-tag.ps1 -TagName "v1.0.5"
+    .\create-tag.ps1 -TagName "v1.0.5"
 #>
 
 param(

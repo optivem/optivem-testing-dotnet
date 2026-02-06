@@ -1,4 +1,4 @@
-name: 'Create Git Tag'
+name: 'Create Tag'
 description: 'Creates and pushes a Git tag'
 
 inputs:
@@ -12,4 +12,4 @@ runs:
     - name: Create Git tag
       shell: pwsh
       run: |
-        ${{ github.action_path }}/create-git-tag.ps1 -TagName "${{ inputs.tag-name }}"
+        ${{ github.action_path }}/create-tag.ps1 -TagName "${{ inputs.tag-name }}"
