@@ -50,17 +50,44 @@ try {
     
     # Unlist all versions
     Write-Host "`n🚫 Unlisting all versions..." -ForegroundColor Cyan
+    $versionIndex = 0
     foreach ($version in $versions) {
-        Write-Host "  Unlisting $version..." -ForegroundColor Gray
-        dotnet nuget delete $PackageId $version `
-            --source https://api.nuget.org/v3/index.json `
-            --api-key $ApiKey `
-            --non-interactive
+        $versionIndex++
+        Write-Host "  [$versionIndex/$($versions.Count)] Unlisting $version..." -ForegroundColor Gray
         
-        if ($LASTEXITCODE -eq 0) {
-            Write-Host "  ✓ Unlisted $version" -ForegroundColor Green
-        } else {
-            Write-Host "  ⚠ Failed to unlist $version (may already be unlisted)" -ForegroundColor Yellow
+        $retryCount = 0
+        $maxRetries = 3
+        $success = $false
+        
+        while (-not $success -and $retryCount -lt $maxRetries) {
+            dotnet nuget delete $PackageId $version `
+                --source https://api.nuget.org/v3/index.json `
+                --api-key $ApiKey `
+                --non-interactive 2>&1 | Out-String -OutVariable output | Out-Null
+            
+            if ($LASTEXITCODE -eq 0) {
+                Write-Host "  ✓ Unlisted $version" -ForegroundColor Green
+                $success = $true
+            } elseif ($output -like "*403*" -or $output -like "*Quota*") {
+                $retryCount++
+                if ($retryCount -lt $maxRetries) {
+                    $waitTime = [Math]::Pow(2, $retryCount) * 30  # Exponential backoff: 60s, 120s, 240s
+                    Write-Host "  ⏳ Rate limit hit. Waiting $waitTime seconds before retry $retryCount/$maxRetries..." -ForegroundColor Yellow
+                    Start-Sleep -Seconds $waitTime
+                } else {
+                    Write-Host "  ❌ Rate limit exceeded after $maxRetries retries. Skipping remaining versions." -ForegroundColor Red
+                    Write-Host "  💡 Wait 1 hour and run script again to continue." -ForegroundColor Cyan
+                    throw "Rate limit exceeded"
+                }
+            } else {
+                Write-Host "  ⚠ Failed to unlist $version (may already be unlisted)" -ForegroundColor Yellow
+                $success = $true  # Continue to next version
+            }
+        }
+        
+        # Delay between versions to avoid rate limiting (only if not last version)
+        if ($versionIndex -lt $versions.Count) {
+            Start-Sleep -Seconds 3
         }
     }
     

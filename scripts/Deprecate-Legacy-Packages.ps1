@@ -309,12 +309,23 @@ foreach ($packageId in $packages) {
         }
         
     } catch {
-        Write-Host "❌ Error processing $packageId`: $_" -ForegroundColor Red
+        $errorMessage = $_.Exception.Message
+        Write-Host "❌ Error processing $packageId`: $errorMessage" -ForegroundColor Red
         $failCount++
+        
+        # If rate limit error, suggest longer wait
+        if ($errorMessage -like "*Rate limit*" -or $errorMessage -like "*403*") {
+            Write-Host "" 
+            Write-Host "⏳ Rate limit exceeded. Recommendation:" -ForegroundColor Yellow
+            Write-Host "   1. Wait 1 hour for rate limit to reset" -ForegroundColor Cyan
+            Write-Host "   2. Run script again - it will skip already processed packages" -ForegroundColor Cyan
+            Write-Host "" 
+            break  # Stop processing more packages
+        }
     }
     
-    # Small delay between packages to avoid rate limiting
-    Start-Sleep -Seconds 2
+    # Delay between packages to avoid rate limiting
+    Start-Sleep -Seconds 5
 }
 
 Write-Host ""
