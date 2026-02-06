@@ -32,7 +32,7 @@ Write-Host "✅ Extracted base version: $VERSION" -ForegroundColor Green
 
 # Output for GitHub Actions
 if ($env:GITHUB_OUTPUT) {
-    "base_version=$VERSION" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+    "version=$VERSION" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 } else {
     # Local testing output
     Write-Host "Base version: $VERSION"

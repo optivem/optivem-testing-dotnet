@@ -1,9 +1,9 @@
 name: 'Extract .NET Version'
 description: 'Extract version from Directory.Build.props for .NET projects'
 outputs:
-  base_version:
+  version:
     description: 'The base version extracted from Directory.Build.props'
-    value: ${{ steps.extract.outputs.base_version }}
+    value: ${{ steps.extract.outputs.version }}
 runs:
   using: 'composite'
   steps:
