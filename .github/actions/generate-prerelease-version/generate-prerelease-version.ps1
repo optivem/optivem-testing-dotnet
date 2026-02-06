@@ -7,14 +7,14 @@
 .PARAMETER BaseVersion
     Base semantic version (e.g., 1.0.0)
 
-.PARAMETER PrereleaseNumber
-    Prerelease number for prerelease suffix
-
 .PARAMETER PrereleaseLabel
     Prerelease label (e.g., rc, beta, alpha)
 
+.PARAMETER PrereleaseNumber
+    Prerelease number for prerelease suffix
+
 .EXAMPLE
-    .\generate-prerelease-version.ps1 -BaseVersion "1.0.0" -PrereleaseNumber "12" -PrereleaseLabel "rc"
+    .\generate-prerelease-version.ps1 -BaseVersion "1.0.0" -PrereleaseLabel "rc" -PrereleaseNumber "12"
     Output: 1.0.0-rc.12
 #>
 
@@ -23,10 +23,10 @@ param(
     [string]$BaseVersion,
     
     [Parameter(Mandatory=$false)]
-    [string]$PrereleaseNumber,
+    [string]$PrereleaseLabel = "rc",
 
     [Parameter(Mandatory=$false)]
-    [string]$PrereleaseLabel = "rc"
+    [string]$PrereleaseNumber
 )
 
 # Validate base version format (X.Y.Z)
