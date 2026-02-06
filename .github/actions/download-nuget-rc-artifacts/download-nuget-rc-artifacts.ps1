@@ -97,9 +97,25 @@ while (-not $success -and $retryCount -lt $maxRetries) {
 </Project>
 "@ | Set-Content "$tempDir/temp.csproj"
         
+        # Create nuget.config that references the GitHub Packages source
+        @"
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <packageSources>
+    <add key="github" value="https://nuget.pkg.github.com/$owner/index.json" />
+  </packageSources>
+  <packageSourceCredentials>
+    <github>
+      <add key="Username" value="$GitHubUsername" />
+      <add key="ClearTextPassword" value="$GitHubToken" />
+    </github>
+  </packageSourceCredentials>
+</configuration>
+"@ | Set-Content "$tempDir/nuget.config"
+        
         # Download package using dotnet add
         Push-Location $tempDir
-        $downloadOutput = dotnet add package $PackageName --version $RcVersion --source $sourceName --package-directory ../packages 2>&1
+        $downloadOutput = dotnet add package $PackageName --version $RcVersion --package-directory ../packages 2>&1
         Pop-Location
         
         Write-Host "   Download command output:" -ForegroundColor Gray
