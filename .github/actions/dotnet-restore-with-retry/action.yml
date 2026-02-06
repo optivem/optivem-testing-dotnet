@@ -1,0 +1,53 @@
+name: 'Dotnet Restore with Retry'
+description: 'Restores a .NET project with retry and backoff'
+
+inputs:
+  project-path:
+    description: 'Path to the .csproj to restore'
+    required: true
+  version:
+    description: 'Package version to pass via -p:Version'
+    required: true
+  max-attempts:
+    description: 'Maximum number of restore attempts'
+    required: false
+    default: '5'
+  wait-seconds:
+    description: 'Seconds to wait between attempts'
+    required: false
+    default: '30'
+  extra-args:
+    description: 'Additional arguments for dotnet restore'
+    required: false
+    default: ''
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Restore with retry
+      shell: pwsh
+      run: |
+        $maxAttempts = [int]"${{ inputs.max-attempts }}"
+        $waitSeconds = [int]"${{ inputs.wait-seconds }}"
+        $projectPath = "${{ inputs.project-path }}"
+        $version = "${{ inputs.version }}"
+        $extraArgs = "${{ inputs.extra-args }}"
+
+        for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
+          Write-Host "[$attempt/$maxAttempts] Restoring $projectPath..."
+          $command = "dotnet restore `"$projectPath`" --force --no-cache -p:Version=`"$version`" $extraArgs"
+          Invoke-Expression $command
+
+          if ($LASTEXITCODE -eq 0) {
+            Write-Host "Restore succeeded"
+            break
+          }
+
+          if ($attempt -eq $maxAttempts) {
+            Write-Host "Restore failed after $maxAttempts attempts"
+            exit 1
+          }
+
+          Write-Host "Restore failed. Waiting ${waitSeconds}s before retry..."
+          Start-Sleep -Seconds $waitSeconds
+        }
