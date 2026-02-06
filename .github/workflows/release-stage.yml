@@ -49,7 +49,7 @@ jobs:
     - name: Check if Git tag already exists
       uses: ./.github/actions/check-tag-exists
       with:
-        release-version: ${{ steps.validate.outputs.release-version }}
+        tag-name: v${{ steps.validate.outputs.release-version }}
     
     - name: Download RC package from GitHub Packages
       uses: ./.github/actions/download-nuget-rc-artifacts
