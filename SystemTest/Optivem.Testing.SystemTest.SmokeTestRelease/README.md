@@ -36,6 +36,10 @@ This allows flexible testing:
 - **Without parameter**: Tests `$(VersionPrefix)` from Directory.Build.props (baseline version)
 - **With `-p:Version=X.Y.Z`**: Tests that specific version from NuGet.org (useful for release verification)
 
+## CI/CD Integration
+
+This project is **excluded from the main solution** to prevent restore failures during regular CI builds (when the version doesn't exist on NuGet.org yet). It's only tested during the release-stage workflow with an explicit version parameter.
+
 ## Configuration
 
 The `nuget.config` file is configured to:

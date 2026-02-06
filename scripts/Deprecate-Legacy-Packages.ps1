@@ -36,142 +36,210 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-# List of packages to deprecate
+# List of packages to deprecate (157 total packages - all legacy Optivem packages)
 $packages = @(
-    # Optivem.Framework.Core packages
-    "Optivem.Framework.Core.Common",
-    "Optivem.Framework.Core.Domain",
-    "Optivem.Framework.Core.Application.Interface",
-    "Optivem.Framework.Core.Application",
-    "Optivem.Framework.Core.All",
-    "Optivem.Framework.Core.Common.Serialization",
-    
-    # Optivem.Framework.Infrastructure packages
-    "Optivem.Framework.Infrastructure.FluentValidation",
-    "Optivem.Framework.Infrastructure.NewtonsoftJson",
-    "Optivem.Framework.Infrastructure.System",
-    "Optivem.Framework.Infrastructure.EntityFrameworkCore",
-    "Optivem.Framework.Infrastructure.Selenium",
-    "Optivem.Framework.Infrastructure.CsvHelper",
-    "Optivem.Framework.Infrastructure.AutoMapper",
-    "Optivem.Framework.Infrastructure.MediatR",
-    "Optivem.Framework.Infrastructure.AspNetCore",
-    "Optivem.Framework.Infrastructure.EPPlus",
-    "Optivem.Framework.Infrastructure.Common.Serialization.Json.NewtonsoftJson",
-    
-    # Optivem.Framework.DependencyInjection packages
-    "Optivem.Framework.DependencyInjection.Common",
-    "Optivem.Framework.DependencyInjection.Infrastructure.FluentValidation",
-    "Optivem.Framework.DependencyInjection.Infrastructure.NewtonsoftJson",
-    "Optivem.Framework.DependencyInjection.Infrastructure.AutoMapper",
-    "Optivem.Framework.DependencyInjection.Infrastructure.MediatR",
-    "Optivem.Framework.DependencyInjection.Infrastructure.EntityFrameworkCore",
-    "Optivem.Framework.DependencyInjection.Core.Domain",
-    "Optivem.Framework.DependencyInjection.Core.Application",
-    
-    # Optivem.Framework.Web packages
-    "Optivem.Framework.Web.AspNetCore",
-    
-    # Optivem.Framework.Test packages
-    "Optivem.Framework.Test.Common",
-    "Optivem.Framework.Test.MicrosoftExtensions",
-    "Optivem.Framework.Test.AspNetCore",
-    "Optivem.Framework.Test.Xunit",
-    "Optivem.Framework.Test.Selenium",
-    "Optivem.Framework.Test.EntityFrameworkCore",
-    "Optivem.Framework.Test.FluentAssertions",
+    # ATDD Accelerator packages
+    "atdd-accelerator",
+    "atdd-accelerator-cli",
     
     # Optivem.Atomiv.Core packages
+    "Optivem.Atomiv.Core.All",
+    "Optivem.Atomiv.Core.Application",
+    "Optivem.Atomiv.Core.Application.Interface",
     "Optivem.Atomiv.Core.Common",
     "Optivem.Atomiv.Core.Domain",
-    "Optivem.Atomiv.Core.Application.Interface",
-    "Optivem.Atomiv.Core.Application",
-    "Optivem.Atomiv.Core.All",
-    
-    # Optivem.Atomiv.Infrastructure packages
-    "Optivem.Atomiv.Infrastructure.System",
-    "Optivem.Atomiv.Infrastructure.NewtonsoftJson",
-    "Optivem.Atomiv.Infrastructure.FluentValidation",
-    "Optivem.Atomiv.Infrastructure.EntityFrameworkCore",
-    "Optivem.Atomiv.Infrastructure.AspNetCore",
-    "Optivem.Atomiv.Infrastructure.AutoMapper",
-    "Optivem.Atomiv.Infrastructure.MediatR",
-    "Optivem.Atomiv.Infrastructure.Selenium",
-    "Optivem.Atomiv.Infrastructure.EPPlus",
-    "Optivem.Atomiv.Infrastructure.CsvHelper",
-    "Optivem.Atomiv.Infrastructure.SequentialGuid",
     
     # Optivem.Atomiv.DependencyInjection packages
     "Optivem.Atomiv.DependencyInjection.Common",
+    "Optivem.Atomiv.DependencyInjection.Core.Application",
+    "Optivem.Atomiv.DependencyInjection.Core.Domain",
     "Optivem.Atomiv.DependencyInjection.Infrastructure.AspNetCore",
-    "Optivem.Atomiv.DependencyInjection.Infrastructure.FluentValidation",
-    "Optivem.Atomiv.DependencyInjection.Infrastructure.NewtonsoftJson",
-    "Optivem.Atomiv.DependencyInjection.Infrastructure.MediatR",
-    "Optivem.Atomiv.DependencyInjection.Infrastructure.System",
     "Optivem.Atomiv.DependencyInjection.Infrastructure.AutoMapper",
     "Optivem.Atomiv.DependencyInjection.Infrastructure.EntityFrameworkCore",
-    "Optivem.Atomiv.DependencyInjection.Core.Domain",
-    "Optivem.Atomiv.DependencyInjection.Core.Application",
+    "Optivem.Atomiv.DependencyInjection.Infrastructure.FluentValidation",
+    "Optivem.Atomiv.DependencyInjection.Infrastructure.MediatR",
+    "Optivem.Atomiv.DependencyInjection.Infrastructure.NewtonsoftJson",
+    "Optivem.Atomiv.DependencyInjection.Infrastructure.System",
     
-    # Optivem.Atomiv.Web packages
-    "Optivem.Atomiv.Web.AspNetCore",
-    
-    # Optivem.Atomiv.Test packages
-    "Optivem.Atomiv.Test.MicrosoftExtensions",
-    "Optivem.Atomiv.Test.AspNetCore",
-    "Optivem.Atomiv.Test.FluentAssertions",
-    "Optivem.Atomiv.Test.Xunit",
-    "Optivem.Atomiv.Test.Selenium",
-    "Optivem.Atomiv.Test.EntityFrameworkCore",
+    # Optivem.Atomiv.Infrastructure packages
+    "Optivem.Atomiv.Infrastructure.AspNetCore",
+    "Optivem.Atomiv.Infrastructure.AutoMapper",
+    "Optivem.Atomiv.Infrastructure.CsvHelper",
+    "Optivem.Atomiv.Infrastructure.EntityFrameworkCore",
+    "Optivem.Atomiv.Infrastructure.EPPlus",
+    "Optivem.Atomiv.Infrastructure.FluentValidation",
+    "Optivem.Atomiv.Infrastructure.MediatR",
+    "Optivem.Atomiv.Infrastructure.NewtonsoftJson",
+    "Optivem.Atomiv.Infrastructure.Selenium",
+    "Optivem.Atomiv.Infrastructure.SequentialGuid",
+    "Optivem.Atomiv.Infrastructure.System",
     
     # Optivem.Atomiv.Templates
     "Optivem.Atomiv.Templates",
     
+    # Optivem.Atomiv.Test packages
+    "Optivem.Atomiv.Test.AspNetCore",
+    "Optivem.Atomiv.Test.EntityFrameworkCore",
+    "Optivem.Atomiv.Test.FluentAssertions",
+    "Optivem.Atomiv.Test.MicrosoftExtensions",
+    "Optivem.Atomiv.Test.Selenium",
+    "Optivem.Atomiv.Test.Xunit",
+    
+    # Optivem.Atomiv.Web packages
+    "Optivem.Atomiv.Web.AspNetCore",
+    
+    # Optivem.Common packages
+    "Optivem.Common.Http",
+    "Optivem.Common.Serialization",
+    "Optivem.Common.WebAutomation",
+    
+    # Optivem.Core packages
+    "Optivem.Core.All",
+    "Optivem.Core.Application",
+    "Optivem.Core.Application.Interface",
+    "Optivem.Core.Common",
+    "Optivem.Core.Domain",
+    
+    # Optivem.DependencyInjection packages
+    "Optivem.DependencyInjection",
+    "Optivem.DependencyInjection.Core.Application",
+    "Optivem.DependencyInjection.Core.Domain",
+    "Optivem.DependencyInjection.Infrastructure.AutoMapper",
+    
+    # Optivem.Framework.Core packages
+    "Optivem.Framework.Core.All",
+    "Optivem.Framework.Core.Application",
+    "Optivem.Framework.Core.Application.Interface",
+    "Optivem.Framework.Core.Application.Service",
+    "Optivem.Framework.Core.Application.Service.Default",
+    "Optivem.Framework.Core.Application.Services",
+    "Optivem.Framework.Core.Application.Services.Default",
+    "Optivem.Framework.Core.Common",
+    "Optivem.Framework.Core.Common.Mapping",
+    "Optivem.Framework.Core.Common.Parsing",
+    "Optivem.Framework.Core.Common.Repository",
+    "Optivem.Framework.Core.Common.RestClient",
+    "Optivem.Framework.Core.Common.Serialization",
+    "Optivem.Framework.Core.Common.WebAutomation",
+    "Optivem.Framework.Core.Domain",
+    "Optivem.Framework.Core.Domain.Entities",
+    "Optivem.Framework.Core.Domain.Repositories",
+    
+    # Optivem.Framework.DependencyInjection packages
+    "Optivem.Framework.DependencyInjection.Common",
+    "Optivem.Framework.DependencyInjection.Core.Application",
+    "Optivem.Framework.DependencyInjection.Core.Domain",
+    "Optivem.Framework.DependencyInjection.Infrastructure.AutoMapper",
+    "Optivem.Framework.DependencyInjection.Infrastructure.EntityFrameworkCore",
+    "Optivem.Framework.DependencyInjection.Infrastructure.FluentValidation",
+    "Optivem.Framework.DependencyInjection.Infrastructure.MediatR",
+    "Optivem.Framework.DependencyInjection.Infrastructure.NewtonsoftJson",
+    "Optivem.Framework.DependencyInjection.Infrastructure.System",
+    
+    # Optivem.Framework.Infrastructure packages
+    "Optivem.Framework.Infrastructure.AspNetCore",
+    "Optivem.Framework.Infrastructure.AutoMapper",
+    "Optivem.Framework.Infrastructure.Common.Mapping.AutoMapper",
+    "Optivem.Framework.Infrastructure.Common.Parsing.Default",
+    "Optivem.Framework.Infrastructure.Common.Repository.EntityFrameworkCore",
+    "Optivem.Framework.Infrastructure.Common.RestClient.Default",
+    "Optivem.Framework.Infrastructure.Common.Serialization.Csv.CsvHelper",
+    "Optivem.Framework.Infrastructure.Common.Serialization.Default",
+    "Optivem.Framework.Infrastructure.Common.Serialization.Json.NewtonsoftJson",
+    "Optivem.Framework.Infrastructure.Common.WebAutomation.Selenium",
+    "Optivem.Framework.Infrastructure.CsvHelper",
+    "Optivem.Framework.Infrastructure.Domain.Repositories.EntityFrameworkCore",
+    "Optivem.Framework.Infrastructure.EntityFrameworkCore",
+    "Optivem.Framework.Infrastructure.EPPlus",
+    "Optivem.Framework.Infrastructure.FluentValidation",
+    "Optivem.Framework.Infrastructure.MediatR",
+    "Optivem.Framework.Infrastructure.NewtonsoftJson",
+    "Optivem.Framework.Infrastructure.Selenium",
+    "Optivem.Framework.Infrastructure.SequentialGuid",
+    "Optivem.Framework.Infrastructure.System",
+    
+    # Optivem.Framework.Test packages
+    "Optivem.Framework.Test.AspNetCore",
+    "Optivem.Framework.Test.Common",
+    "Optivem.Framework.Test.EntityFrameworkCore",
+    "Optivem.Framework.Test.FluentAssertions",
+    "Optivem.Framework.Test.MicrosoftExtensions",
+    "Optivem.Framework.Test.Selenium",
+    "Optivem.Framework.Test.Xunit",
+    "Optivem.Framework.Test.Xunit.Common",
+    "Optivem.Framework.Test.Xunit.Web.AspNetCore",
+    
+    # Optivem.Framework.Web packages
+    "Optivem.Framework.Web.AspNetCore",
+    "Optivem.Framework.Web.AspNetCore.Rest",
+    
+    # Optivem.Infrastructure packages
+    "Optivem.Infrastructure.All",
+    "Optivem.Infrastructure.AspNetCore",
+    "Optivem.Infrastructure.AutoMapper",
+    "Optivem.Infrastructure.CsvHelper",
+    "Optivem.Infrastructure.EntityFrameworkCore",
+    "Optivem.Infrastructure.FluentValidation",
+    "Optivem.Infrastructure.Http.System",
+    "Optivem.Infrastructure.Mapping.AutoMapper",
+    "Optivem.Infrastructure.MediatR",
+    "Optivem.Infrastructure.Messaging.MediatR",
+    "Optivem.Infrastructure.NewtonsoftJson",
+    "Optivem.Infrastructure.Persistence.EntityFrameworkCore",
+    "Optivem.Infrastructure.Selenium",
+    "Optivem.Infrastructure.Serialization.CsvHelper",
+    "Optivem.Infrastructure.Serialization.NewtonsoftJson",
+    "Optivem.Infrastructure.Serialization.System",
+    "Optivem.Infrastructure.System",
+    "Optivem.Infrastructure.Validation.FluentValidation",
+    "Optivem.Infrastructure.WebAutomation.Selenium",
+    
     # Optivem.Platform.Core packages
-    "Optivem.Platform.Core.Common.Repository",
     "Optivem.Platform.Core.Application.Service",
+    "Optivem.Platform.Core.Application.Service.Default",
+    "Optivem.Platform.Core.Common.Mapping",
     "Optivem.Platform.Core.Common.Parsing",
-    "Optivem.Platform.Core.Common.WebAutomation",
+    "Optivem.Platform.Core.Common.Repository",
     "Optivem.Platform.Core.Common.RestClient",
     "Optivem.Platform.Core.Common.Serialization",
-    "Optivem.Platform.Core.Common.Mapping",
-    "Optivem.Platform.Core.Application.Service.Default",
+    "Optivem.Platform.Core.Common.WebAutomation",
     
     # Optivem.Platform.Infrastructure packages
-    "Optivem.Platform.Infrastructure.Common.Serialization.Csv.CsvHelper",
-    "Optivem.Platform.Infrastructure.Common.Serialization.Json.NewtonsoftJson",
-    "Optivem.Platform.Infrastructure.Common.Repository.EntityFrameworkCore",
-    "Optivem.Platform.Infrastructure.Common.WebAutomation.Selenium",
-    "Optivem.Platform.Infrastructure.Common.Serialization.Default",
-    "Optivem.Platform.Infrastructure.Common.RestClient.Default",
-    "Optivem.Platform.Infrastructure.Common.Parsing.Default",
     "Optivem.Platform.Infrastructure.Common.Mapping.AutoMapper",
+    "Optivem.Platform.Infrastructure.Common.Parsing.Default",
+    "Optivem.Platform.Infrastructure.Common.Repository.EntityFrameworkCore",
+    "Optivem.Platform.Infrastructure.Common.RestClient.Default",
+    "Optivem.Platform.Infrastructure.Common.Serialization.Csv.CsvHelper",
+    "Optivem.Platform.Infrastructure.Common.Serialization.Default",
+    "Optivem.Platform.Infrastructure.Common.Serialization.Json.NewtonsoftJson",
+    "Optivem.Platform.Infrastructure.Common.WebAutomation.Selenium",
+    
+    # Optivem.Platform.Test packages
+    "Optivem.Platform.Test.Xunit.Common",
+    "Optivem.Platform.Test.Xunit.Web.AspNetCore",
     
     # Optivem.Platform.Web packages
     "Optivem.Platform.Web.AspNetCore.Rest",
     
-    # Optivem.Core packages
-    "Optivem.Core.Common",
-    "Optivem.Core.All",
-    "Optivem.Core.Application.Interface",
-    "Optivem.Core.Domain",
-    "Optivem.Core.Application",
+    # Optivem.Template/Templates
+    "Optivem.Template",
+    "Optivem.Templates",
     
-    # Optivem.Common packages
-    "Optivem.Common.Serialization",
-    
-    # Optivem.Infrastructure packages
-    "Optivem.Infrastructure.Mapping.AutoMapper",
-    "Optivem.Infrastructure.Serialization.CsvHelper",
-    "Optivem.Infrastructure.CsvHelper",
-    "Optivem.Infrastructure.NewtonsoftJson",
+    # Optivem.Test packages
+    "Optivem.Test.All",
+    "Optivem.Test.AspNetCore",
+    "Optivem.Test.AspNetCore.EntityFrameworkCore",
+    "Optivem.Test.Common",
+    "Optivem.Test.EntityFrameworkCore",
+    "Optivem.Test.Xunit",
+    "Optivem.Test.Xunit.All",
+    "Optivem.Test.Xunit.AspNetCore",
+    "Optivem.Test.Xunit.AspNetCore.EntityFrameworkCore",
+    "Optivem.Test.Xunit.Common",
+    "Optivem.Test.Xunit.Selenium",
     
     # Optivem.Web packages
-    "Optivem.Web.AspNetCore",
-    
-    # Optivem.Templates
-    "Optivem.Templates",
-    "Optivem.Template"
+    "Optivem.Web.AspNetCore"
 )
 
 Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Cyan
