@@ -34,7 +34,7 @@ jobs:
     
     - name: Generate RC version
       id: version
-      uses: ./.github/actions/generate-rc-version
+      uses: ./.github/actions/generate-prerelease-version
       with:
         base-version: ${{ steps.base-version.outputs.version }}
         run-number: ${{ github.run_number }}

@@ -11,7 +11,7 @@
     Build run number for RC suffix
 
 .EXAMPLE
-    .\generate-rc-version.ps1 -BaseVersion "1.0.0" -RunNumber "12"
+    .\generate-prerelease-version.ps1 -BaseVersion "1.0.0" -RunNumber "12"
     Output: 1.0.0-rc.12
 #>
 

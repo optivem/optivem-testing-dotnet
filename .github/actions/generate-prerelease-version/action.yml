@@ -1,5 +1,5 @@
-name: 'Generate RC Version'
-description: 'Generates RC version by appending -rc.N suffix to base version'
+name: 'Generate Prerelease Version'
+description: 'Generates prerelease version by appending -rc.N suffix to base version'
 
 inputs:
   base-version:
@@ -21,4 +21,4 @@ runs:
       id: generate
       shell: pwsh
       run: |
-        ${{ github.action_path }}/generate-rc-version.ps1 -BaseVersion "${{ inputs.base-version }}" -RunNumber "${{ inputs.run-number }}"
+        ${{ github.action_path }}/generate-prerelease-version.ps1 -BaseVersion "${{ inputs.base-version }}" -RunNumber "${{ inputs.run-number }}"
