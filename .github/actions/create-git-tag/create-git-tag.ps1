@@ -7,19 +7,13 @@
 .PARAMETER TagName
     The git tag name to create (e.g., v1.0.3)
 
-.PARAMETER RcVersion
-    The RC version that was promoted
-
 .EXAMPLE
-    .\create-git-tag.ps1 -TagName "v1.0.5" -RcVersion "1.0.5-rc.47"
+    .\create-git-tag.ps1 -TagName "v1.0.5"
 #>
 
 param(
     [Parameter(Mandatory=$true)]
-    [string]$TagName,
-    
-    [Parameter(Mandatory=$true)]
-    [string]$RcVersion
+    [string]$TagName
 )
 
 Write-Host "🏷️ Creating Git tag ${TagName}..." -ForegroundColor Blue
@@ -29,7 +23,7 @@ git config user.name "github-actions[bot]"
 git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
 # Create annotated tag
-git tag -a "${TagName}" -m "Release ${TagName} (promoted from ${RcVersion})"
+git tag -a "${TagName}" -m "Release ${TagName}"
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "❌ Failed to create tag" -ForegroundColor Red
