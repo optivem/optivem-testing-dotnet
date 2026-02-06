@@ -29,12 +29,12 @@ dotnet test
 ### Test specific version (useful for verifying newly published releases)
 ```bash
 cd SystemTest/Optivem.Testing.SystemTest.SmokeTestRelease
-dotnet test -p:TestVersion=1.0.4
+dotnet test -p:Version=1.0.4
 ```
 
 This allows flexible testing:
 - **Without parameter**: Tests `$(VersionPrefix)` from Directory.Build.props (baseline version)
-- **With `-p:TestVersion=X.Y.Z`**: Tests that specific version from NuGet.org (useful for release verification)
+- **With `-p:Version=X.Y.Z`**: Tests that specific version from NuGet.org (useful for release verification)
 
 ## Configuration
 
