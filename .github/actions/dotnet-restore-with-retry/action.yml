@@ -25,29 +25,10 @@ runs:
   using: 'composite'
   steps:
     - name: Restore with retry
-      shell: pwsh
-      run: |
-        $maxAttempts = [int]"${{ inputs.max-attempts }}"
-        $waitSeconds = [int]"${{ inputs.wait-seconds }}"
-        $projectPath = "${{ inputs.project-path }}"
-        $version = "${{ inputs.version }}"
-        $extraArgs = "${{ inputs.extra-args }}"
-
-        for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
-          Write-Host "[$attempt/$maxAttempts] Restoring $projectPath..."
-          $command = "dotnet restore `"$projectPath`" --force --no-cache -p:Version=`"$version`" $extraArgs"
-          Invoke-Expression $command
-
-          if ($LASTEXITCODE -eq 0) {
-            Write-Host "Restore succeeded"
-            break
-          }
-
-          if ($attempt -eq $maxAttempts) {
-            Write-Host "Restore failed after $maxAttempts attempts"
-            exit 1
-          }
-
-          Write-Host "Restore failed. Waiting ${waitSeconds}s before retry..."
-          Start-Sleep -Seconds $waitSeconds
-        }
+      uses: ./.github/actions/poll-until-condition
+      with:
+        check-script: '../dotnet-restore-with-retry/check-dotnet-restore.ps1'
+        script-args: '${{ inputs.project-path }} ${{ inputs.version }} ${{ inputs.extra-args }}'
+        max-attempts: '${{ inputs.max-attempts }}'
+        poll-interval: '${{ inputs.wait-seconds }}'
+        condition-name: 'dotnet restore of ${{ inputs.project-path }}'
