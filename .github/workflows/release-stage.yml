@@ -15,9 +15,6 @@ jobs:
       contents: write
       packages: read
     
-    env:
-      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
-    
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -29,36 +26,13 @@ jobs:
       with:
         dotnet-version: 8.0.x
     
-    - name: Configure GitHub Packages source
-      run: |
-        dotnet nuget add source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
-          --name github \
-          --username ${{ github.actor }} \
-          --password ${{ secrets.GITHUB_TOKEN }} \
-          --store-password-in-clear-text
-    
     - name: Find latest RC version if not provided
       id: find-rc
-      run: |
-        if [ -n "${{ github.event.inputs.rc_version }}" ]; then
-          RC_VERSION="${{ github.event.inputs.rc_version }}"
-          echo "Using provided RC version: $RC_VERSION"
-        else
-          echo "Finding latest RC version from GitHub Packages..."
-          # List all versions and find latest RC
-          RC_VERSION=$(dotnet package search Optivem.Testing --source github --exact-match --prerelease --format json | \
-            jq -r '.searchResult[0].packages[0].version' | \
-            grep -E '^[0-9]{4}\.[0-9]{2}\.[0-9]{2}-rc\.[0-9]+$' | \
-            sort -V | tail -1)
-          
-          if [ -z "$RC_VERSION" ]; then
-            echo "Error: No RC version found"
-            exit 1
-          fi
-          echo "Found latest RC version: $RC_VERSION"
-        fi
-        
-        echo "rc-version=$RC_VERSION" >> $GITHUB_OUTPUT
+      uses: ./.github/actions/find-latest-nuget-rc-version
+      with:
+        rc-version: ${{ github.event.inputs.rc_version }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        package-name: 'Optivem.Testing'
     
     - name: Validate RC version and extract release version
       id: validate
@@ -78,95 +52,33 @@ jobs:
         release-version: ${{ steps.validate.outputs.release-version }}
     
     - name: Download RC package from GitHub Packages
-      run: |
-        RC_VERSION="${{ steps.validate.outputs.rc-version }}"
-        
-        echo "Downloading RC package $RC_VERSION from GitHub Packages..."
-        
-        # Create temp directory for download
-        mkdir -p ./temp-release
-        cd ./temp-release
-        
-        # Download the RC package
-        dotnet add package Optivem.Testing --version $RC_VERSION --source github --package-directory .
-        
-        # Find the downloaded nupkg
-        NUPKG_PATH=$(find . -name "optivem.testing.$RC_VERSION.nupkg" -type f)
-        
-        if [ -z "$NUPKG_PATH" ]; then
-          echo "Error: Failed to download RC package"
-          exit 1
-        fi
-        
-        echo "✓ Downloaded RC package: $NUPKG_PATH"
-        echo "nupkg-path=$NUPKG_PATH" >> $GITHUB_OUTPUT
-      id: download
+      uses: ./.github/actions/download-nuget-rc-artifacts
+      with:
+        rc-version: ${{ steps.validate.outputs.rc-version }}
+        github-username: ${{ github.actor }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        package-name: 'Optivem.Testing'
     
     - name: Repack with release version
-      run: |
-        RC_VERSION="${{ steps.validate.outputs.rc-version }}"
-        RELEASE_VERSION="${{ steps.validate.outputs.release-version }}"
-        
-        echo "Repacking RC as release version..."
-        
-        # Extract the nupkg
-        mkdir -p ./temp-release/extracted
-        unzip -q "${{ steps.download.outputs.nupkg-path }}" -d ./temp-release/extracted
-        
-        # Update version in nuspec
-        sed -i "s|<version>$RC_VERSION</version>|<version>$RELEASE_VERSION</version>|g" ./temp-release/extracted/optivem.testing.nuspec
-        
-        # Repack
-        cd ./temp-release/extracted
-        zip -q -r "../optivem.testing.$RELEASE_VERSION.nupkg" *
-        cd ../..
-        
-        echo "✓ Repacked as version $RELEASE_VERSION"
+      uses: ./.github/actions/prepare-nuget-release-artifacts
+      with:
+        rc-version: ${{ steps.validate.outputs.rc-version }}
+        release-version: ${{ steps.validate.outputs.release-version }}
+        package-name: 'Optivem.Testing'
     
     - name: Publish to NuGet.org
-      run: |
-        RELEASE_VERSION="${{ steps.validate.outputs.release-version }}"
-        
-        if [ -z "$NUGET_API_KEY" ]; then
-          echo "Error: NUGET_API_KEY secret is not configured"
-          echo "Please add your NuGet.org API key as a repository secret"
-          exit 1
-        fi
-        
-        echo "Publishing version $RELEASE_VERSION to NuGet.org..."
-        
-        dotnet nuget push "./temp-release/optivem.testing.$RELEASE_VERSION.nupkg" \
-          --api-key $NUGET_API_KEY \
-          --source https://api.nuget.org/v3/index.json \
-          --skip-duplicate
-        
-        echo "✓ Published to NuGet.org"
+      uses: ./.github/actions/publish-nuget
+      with:
+        package-path: './temp-release/Optivem.Testing.${{ steps.validate.outputs.release-version }}.nupkg'
+        nuget-api-key: ${{ secrets.NUGET_API_KEY }}
     
     - name: Wait for NuGet.org indexing
-      run: |
-        RELEASE_VERSION="${{ steps.validate.outputs.release-version }}"
-        
-        echo "Waiting for NuGet.org to index the package..."
-        MAX_ATTEMPTS=30
-        ATTEMPT=0
-        
-        while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
-          ATTEMPT=$((ATTEMPT + 1))
-          echo "Attempt $ATTEMPT/$MAX_ATTEMPTS..."
-          
-          if curl -s "https://api.nuget.org/v3-flatcontainer/optivem.testing/index.json" | \
-             jq -e --arg ver "$RELEASE_VERSION" '.versions[] | select(. == $ver)' > /dev/null 2>&1; then
-            echo "✓ Package is now available on NuGet.org!"
-            break
-          fi
-          
-          if [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then
-            echo "Warning: Package not yet indexed after $MAX_ATTEMPTS attempts"
-            echo "The package may still be processing. Manual verification recommended."
-          else
-            sleep 10
-          fi
-        done
+      uses: ./.github/actions/wait-for-nuget-indexing
+      with:
+        package-name: 'Optivem.Testing'
+        version: ${{ steps.validate.outputs.release-version }}
+        max-attempts: '30'
+        poll-interval: '10'
     
     - name: Create Git tag
       uses: ./.github/actions/create-git-tag
