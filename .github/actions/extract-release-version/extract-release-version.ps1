@@ -2,14 +2,14 @@
 
 <#
 .SYNOPSIS
-    Validates RC version format and extracts release version
+    Extracts release version from RC version
 
 .PARAMETER RcVersion
     The RC version to validate in semantic versioning format (e.g., 1.0.5-rc.47)
 
 .EXAMPLE
-    .\validate-rc-version.ps1 -RcVersion "1.0.5-rc.47"
-    .\validate-rc-version.ps1 -RcVersion "2.1.0-rc.3"
+    .\extract-release-version.ps1 -RcVersion "1.0.5-rc.47"
+    .\extract-release-version.ps1 -RcVersion "2.1.0-rc.3"
 #>
 
 param(

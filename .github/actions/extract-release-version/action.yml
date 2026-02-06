@@ -1,5 +1,5 @@
-name: 'Validate RC Version'
-description: 'Validates RC version format and extracts release version'
+name: 'Extract Release Version'
+description: 'Extracts release version from RC version'
 
 inputs:
   rc-version:
@@ -17,8 +17,8 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    - name: Validate RC version
+    - name: Extract release version
       id: validate
       shell: pwsh
       run: |
-        ${{ github.action_path }}/validate-rc-version.ps1 -RcVersion "${{ inputs.rc-version }}"
+        ${{ github.action_path }}/extract-release-version.ps1 -RcVersion "${{ inputs.rc-version }}"

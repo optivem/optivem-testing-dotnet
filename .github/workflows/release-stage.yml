@@ -34,9 +34,9 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         package-name: 'Optivem.Testing'
     
-    - name: Validate RC version and extract release version
+    - name: Extract release version from RC
       id: validate
-      uses: ./.github/actions/validate-rc-version
+      uses: ./.github/actions/extract-release-version
       with:
         rc-version: ${{ steps.find-rc.outputs.rc-version }}
     
