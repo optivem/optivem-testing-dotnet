@@ -22,7 +22,7 @@ param(
     [Parameter(Mandatory=$true)]
     [string]$BaseVersion,
     
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory=$false)]
     [string]$PrereleaseNumber,
 
     [Parameter(Mandatory=$false)]
@@ -40,6 +40,15 @@ if ($BaseVersion -notmatch '^\d+\.\d+\.\d+$') {
 if ($PrereleaseLabel -notmatch '^[0-9A-Za-z-]+$') {
     Write-Host "❌ Invalid prerelease label. Expected: [0-9A-Za-z-]+" -ForegroundColor Red
     Write-Host "   Got: $PrereleaseLabel" -ForegroundColor Yellow
+    exit 1
+}
+
+if ([string]::IsNullOrWhiteSpace($PrereleaseNumber)) {
+    $PrereleaseNumber = $env:GITHUB_RUN_NUMBER
+}
+
+if ([string]::IsNullOrWhiteSpace($PrereleaseNumber)) {
+    Write-Host "❌ Prerelease number not provided and GITHUB_RUN_NUMBER is empty" -ForegroundColor Red
     exit 1
 }
 

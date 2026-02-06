@@ -7,7 +7,7 @@ inputs:
     required: true
   prerelease-number:
     description: 'Prerelease number for prerelease suffix'
-    required: true
+    required: false
   prerelease-label:
     description: 'Prerelease label (e.g., rc, beta, alpha)'
     required: false
