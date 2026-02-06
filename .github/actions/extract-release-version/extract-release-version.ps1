@@ -17,15 +17,15 @@ param(
     [string]$PrereleaseVersion
 )
 
-# Validate semantic versioning format: X.Y.Z-<prerelease>
-if ($PrereleaseVersion -notmatch '^\d+\.\d+\.\d+-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*$') {
-    Write-Host "❌ Invalid prerelease version format. Expected: X.Y.Z-<prerelease> (semantic versioning)" -ForegroundColor Red
-    Write-Host "   Example: 1.0.0-rc.12, 2.1.5-beta.3, 3.0.0-alpha" -ForegroundColor Yellow
+# Validate format: X.Y.Z-<anything>
+if ($PrereleaseVersion -notmatch '^\d+\.\d+\.\d+-.+$') {
+    Write-Host "❌ Invalid prerelease version format. Expected: X.Y.Z-<anything>" -ForegroundColor Red
+    Write-Host "   Example: 1.0.0-rc.12, 2.1.5-2026.02.06, 3.0.0-preview" -ForegroundColor Yellow
     exit 1
 }
 
 # Extract release version (remove prerelease suffix)
-$releaseVersion = $PrereleaseVersion -replace '-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*$', ''
+$releaseVersion = $PrereleaseVersion -replace '-.+$', ''
 
 Write-Host "🔄 Promoting RC $PrereleaseVersion → Release $releaseVersion" -ForegroundColor Cyan
 
