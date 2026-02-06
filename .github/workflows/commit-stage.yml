@@ -18,7 +18,7 @@ jobs:
       contents: read
       packages: write
     outputs:
-      rc-version: ${{ steps.version.outputs.rc-version }}
+      prerelease-version: ${{ steps.version.outputs.prerelease-version }}
     
     steps:
     - uses: actions/checkout@v4
@@ -43,13 +43,13 @@ jobs:
       run: dotnet restore
     
     - name: Build
-      run: dotnet build --no-restore --configuration Release /p:Version="${{ steps.version.outputs.rc-version }}"
+      run: dotnet build --no-restore --configuration Release /p:Version="${{ steps.version.outputs.prerelease-version }}"
     
     - name: Test
       run: dotnet test --no-build --configuration Release --verbosity normal
     
     - name: Pack NuGet package
-      run: dotnet pack Optivem.Testing/Optivem.Testing.csproj --no-build --configuration Release /p:PackageVersion="${{ steps.version.outputs.rc-version }}" --output ./nupkg
+      run: dotnet pack Optivem.Testing/Optivem.Testing.csproj --no-build --configuration Release /p:PackageVersion="${{ steps.version.outputs.prerelease-version }}" --output ./nupkg
     
     - name: Publish RC to GitHub Packages
       run: dotnet nuget push ./nupkg/*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --skip-duplicate
@@ -60,7 +60,7 @@ jobs:
       run: |
         echo "## ✅ Commit Stage Completed" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "**RC Version Published:** \`${{ steps.version.outputs.rc-version }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "**Prerelease Version Published:** \`${{ steps.version.outputs.prerelease-version }}\`" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "🚀 **Actions Completed:**" >> $GITHUB_STEP_SUMMARY
         echo "- Built and tested Optivem.Testing" >> $GITHUB_STEP_SUMMARY

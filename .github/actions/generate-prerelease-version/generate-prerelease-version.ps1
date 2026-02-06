@@ -62,7 +62,7 @@ Write-Host "   Prerelease label: $PrereleaseLabel" -ForegroundColor Gray
 
 # Output for GitHub Actions
 if ($env:GITHUB_OUTPUT) {
-    "rc-version=$rcVersion" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+    "prerelease-version=$rcVersion" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 } else {
     # Local testing output
     Write-Host "Prerelease Version: $rcVersion"

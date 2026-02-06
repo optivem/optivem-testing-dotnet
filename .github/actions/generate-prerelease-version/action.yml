@@ -14,9 +14,9 @@ inputs:
     required: false
 
 outputs:
-  rc-version:
-    description: 'Generated RC version (e.g., 1.0.0-rc.12)'
-    value: ${{ steps.generate.outputs.rc-version }}
+  prerelease-version:
+    description: 'Generated prerelease version (e.g., 1.0.0-rc.12)'
+    value: ${{ steps.generate.outputs.prerelease-version }}
 
 runs:
   using: 'composite'
