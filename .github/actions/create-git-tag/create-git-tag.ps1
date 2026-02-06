@@ -2,7 +2,7 @@
 
 <#
 .SYNOPSIS
-    Creates and pushes a Git tag for a release
+    Creates and pushes a Git tag
 
 .PARAMETER TagName
     The git tag name to create (e.g., v1.0.3)
@@ -23,7 +23,7 @@ git config user.name "github-actions[bot]"
 git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
 # Create annotated tag
-git tag -a "${TagName}" -m "Release ${TagName}"
+git tag -a "${TagName}" -m "Tag ${TagName}"
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "❌ Failed to create tag" -ForegroundColor Red

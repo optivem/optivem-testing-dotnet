@@ -1,5 +1,5 @@
 name: 'Create Git Tag'
-description: 'Creates and pushes a Git tag for a release'
+description: 'Creates and pushes a Git tag'
 
 inputs:
   tag-name:
