@@ -19,11 +19,22 @@ Unlike `Optivem.Testing.SystemTest.SmokeTestRc` which tests RC versions from Git
 
 ## Running Tests
 
+### Test default version (from Directory.Build.props)
 ```bash
 cd SystemTest/Optivem.Testing.SystemTest.SmokeTestRelease
 dotnet restore
 dotnet test
 ```
+
+### Test specific version (useful for verifying newly published releases)
+```bash
+cd SystemTest/Optivem.Testing.SystemTest.SmokeTestRelease
+dotnet test -p:TestVersion=1.0.4
+```
+
+This allows flexible testing:
+- **Without parameter**: Tests `$(VersionPrefix)` from Directory.Build.props (baseline version)
+- **With `-p:TestVersion=X.Y.Z`**: Tests that specific version from NuGet.org (useful for release verification)
 
 ## Configuration
 

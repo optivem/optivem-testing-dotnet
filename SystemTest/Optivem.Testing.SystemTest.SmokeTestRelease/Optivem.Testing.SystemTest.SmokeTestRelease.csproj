@@ -6,6 +6,8 @@
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+    <!-- Use TestVersion parameter if provided via -p:TestVersion=X.Y.Z, otherwise use VersionPrefix -->
+    <TestVersion Condition="'$(TestVersion)' == ''">$(VersionPrefix)</TestVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,8 +18,8 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Shouldly" Version="4.2.1" />
-    <!-- Reference the published release package from NuGet.org (matching current VersionPrefix) -->
-    <PackageReference Include="Optivem.Testing" Version="$(VersionPrefix)" />
+    <!-- Reference the published release package from NuGet.org (version from TestVersion property) -->
+    <PackageReference Include="Optivem.Testing" Version="$(TestVersion)" />
   </ItemGroup>
 
 </Project>
