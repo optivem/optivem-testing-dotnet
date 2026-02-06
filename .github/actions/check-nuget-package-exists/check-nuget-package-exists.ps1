@@ -10,7 +10,7 @@
     Package name on NuGet.org.
 
 .EXAMPLE
-    .\check-nuget-package-exists.ps1 -ReleaseVersion "2026.02.05" -PackageName "Optivem.Testing"
+    .\check-nuget-exists.ps1 -ReleaseVersion "2026.02.05" -PackageName "Optivem.Testing"
 #>
 
 param(

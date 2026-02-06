@@ -1,4 +1,4 @@
-name: 'Wait for Deployment Validation'
+name: 'Wait for Maven Deployment Validation'
 description: 'Polls Maven Central deployment status until validated or failed'
 
 inputs:
@@ -23,7 +23,7 @@ runs:
     - name: Wait for deployment state
       uses: ./.github/actions/poll-until-condition
       with:
-        check-script: '../wait-for-deployment-validation/check-deployment-state.ps1'
+        check-script: '../wait-for-maven-deployment-validation/check-deployment-state.ps1'
         script-args: '${{ inputs.deployment-id }} ${{ inputs.expected-state }}'
         max-attempts: '${{ inputs.max-attempts }}'
         poll-interval: '${{ inputs.poll-interval }}'
