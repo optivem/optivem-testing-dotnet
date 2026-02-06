@@ -1,5 +1,5 @@
-name: 'Find Latest RC Version'
-description: 'Finds the latest RC version from GitHub Packages if no version is provided'
+name: 'Find Latest NuGet RC Version'
+description: 'Finds the latest NuGet RC version from GitHub Packages if no version is provided'
 
 inputs:
   rc-version:
@@ -13,8 +13,9 @@ inputs:
     required: false
     default: ${{ github.repository }}
   package-name:
-    description: 'Package name in GitHub Packages'
-    required: true
+    description: 'NuGet package name in GitHub Packages'
+    required: false
+    default: 'Optivem.Testing'
 
 outputs:
   rc-version:
@@ -24,8 +25,8 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    - name: Find latest RC version if not provided
+    - name: Find latest NuGet RC version if not provided
       id: find-rc
       shell: pwsh
       run: |
-        ${{ github.action_path }}/find-latest-rc-version.ps1 -RcVersion "${{ inputs.rc-version }}" -GitHubToken "${{ inputs.github-token }}" -Repository "${{ inputs.repository }}" -PackageName "${{ inputs.package-name }}"
+        ${{ github.action_path }}/find-latest-nuget-rc-version.ps1 -RcVersion "${{ inputs.rc-version }}" -GitHubToken "${{ inputs.github-token }}" -Repository "${{ inputs.repository }}" -PackageName "${{ inputs.package-name }}"
