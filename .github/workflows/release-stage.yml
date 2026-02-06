@@ -67,17 +67,15 @@ jobs:
         rc-version: ${{ steps.find-rc.outputs.rc-version }}
     
     - name: Check if release version already exists on NuGet.org
-      shell: pwsh
-      run: |
-        ${{ github.workspace }}/.github/actions/check-release-exists/check-nuget-exists.ps1 `
-          -ReleaseVersion "${{ steps.validate.outputs.release-version }}" `
-          -PackageName "Optivem.Testing"
+      uses: ./.github/actions/check-nuget-package-exists
+      with:
+        release-version: ${{ steps.validate.outputs.release-version }}
+        package-name: 'Optivem.Testing'
     
     - name: Check if Git tag already exists
-      shell: pwsh
-      run: |
-        ${{ github.workspace }}/.github/actions/check-release-exists/check-tag-exists.ps1 `
-          -ReleaseVersion "${{ steps.validate.outputs.release-version }}"
+      uses: ./.github/actions/check-tag-exists
+      with:
+        release-version: ${{ steps.validate.outputs.release-version }}
     
     - name: Download RC package from GitHub Packages
       run: |

@@ -1,0 +1,15 @@
+name: 'Check Git Tag Exists'
+description: 'Checks if a Git tag already exists'
+
+inputs:
+  release-version:
+    description: 'Release version to check (tag will be v{version})'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Check if Git tag exists
+      shell: pwsh
+      run: |
+        ${{ github.action_path }}/check-tag-exists.ps1 -ReleaseVersion "${{ inputs.release-version }}"
