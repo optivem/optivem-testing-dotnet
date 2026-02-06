@@ -200,4 +200,4 @@ Contributions welcome! Please open an issue or submit a pull request.
 
 ---
 
-Built with ❤️ by [Optivem](https://github.com/optivem)
+Built by [Optivem](https://github.com/optivem)
