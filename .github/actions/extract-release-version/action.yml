@@ -7,9 +7,6 @@ inputs:
     required: true
 
 outputs:
-  prerelease-version:
-    description: 'Validated prerelease version'
-    value: ${{ steps.validate.outputs.prerelease_version }}
   release-version:
     description: 'Extracted release version'
     value: ${{ steps.validate.outputs.release_version }}

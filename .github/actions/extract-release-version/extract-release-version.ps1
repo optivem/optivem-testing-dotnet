@@ -31,7 +31,6 @@ Write-Host "🔄 Promoting RC $PrereleaseVersion → Release $releaseVersion" -F
 
 # Output for GitHub Actions
 if ($env:GITHUB_OUTPUT) {
-    "prerelease_version=${PrereleaseVersion}" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
     "release_version=${releaseVersion}" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 } else {
     # Local testing output
