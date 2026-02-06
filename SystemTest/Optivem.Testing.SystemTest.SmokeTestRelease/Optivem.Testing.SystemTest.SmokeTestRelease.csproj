@@ -16,8 +16,8 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Shouldly" Version="4.2.1" />
-    <!-- Reference the published release package from NuGet.org -->
-    <PackageReference Include="Optivem.Testing" Version="*" />
+    <!-- Reference the published release package from NuGet.org (matching current VersionPrefix) -->
+    <PackageReference Include="Optivem.Testing" Version="$(VersionPrefix)" />
   </ItemGroup>
 
 </Project>
