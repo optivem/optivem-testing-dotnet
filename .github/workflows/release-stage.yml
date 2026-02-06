@@ -34,11 +34,11 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         package-name: 'Optivem.Testing'
     
-    - name: Extract release version from RC
+    - name: Extract release version from prerelease
       id: validate
       uses: ./.github/actions/extract-release-version
       with:
-        rc-version: ${{ steps.find-rc.outputs.rc-version }}
+        prerelease-version: ${{ steps.find-rc.outputs.rc-version }}
     
     - name: Check if release version already exists on NuGet.org
       uses: ./.github/actions/check-nuget-package-exists
@@ -54,7 +54,7 @@ jobs:
     - name: Download RC package from GitHub Packages
       uses: ./.github/actions/download-nuget-rc-artifacts
       with:
-        rc-version: ${{ steps.validate.outputs.rc-version }}
+        rc-version: ${{ steps.validate.outputs.prerelease-version }}
         github-username: ${{ github.actor }}
         github-token: ${{ secrets.GITHUB_TOKEN }}
         package-name: 'Optivem.Testing'
@@ -62,7 +62,7 @@ jobs:
     - name: Repack with release version
       uses: ./.github/actions/prepare-nuget-release-artifacts
       with:
-        rc-version: ${{ steps.validate.outputs.rc-version }}
+        rc-version: ${{ steps.validate.outputs.prerelease-version }}
         release-version: ${{ steps.validate.outputs.release-version }}
         package-name: 'Optivem.Testing'
     
@@ -106,7 +106,7 @@ jobs:
         body: |
           🎉 **Release ${{ steps.validate.outputs.release-version }}**
           
-          This release was promoted from RC version `${{ steps.validate.outputs.rc-version }}` after passing all acceptance tests.
+          This release was promoted from RC version `${{ steps.validate.outputs.prerelease-version }}` after passing all acceptance tests.
           
           **Promoted Artifacts:**
           - Same exact package that passed testing
@@ -152,7 +152,7 @@ jobs:
         echo "## 🎉 Release Stage Completed" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "**Release Version:** \`${{ steps.validate.outputs.release-version }}\`" >> $GITHUB_STEP_SUMMARY
-        echo "**Promoted from RC:** \`${{ steps.validate.outputs.rc-version }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "**Promoted from RC:** \`${{ steps.validate.outputs.prerelease-version }}\`" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "🚀 **Release Activities:**" >> $GITHUB_STEP_SUMMARY
         echo "- ✅ Downloaded RC package from GitHub Packages" >> $GITHUB_STEP_SUMMARY

@@ -2,14 +2,14 @@ name: 'Extract Release Version'
 description: 'Extracts release version from RC version'
 
 inputs:
-  rc-version:
-    description: 'RC version to validate (e.g., 1.0.5-rc.47)'
+  prerelease-version:
+    description: 'Prerelease version to parse (e.g., 1.0.5-rc.47)'
     required: true
 
 outputs:
-  rc-version:
-    description: 'Validated RC version'
-    value: ${{ steps.validate.outputs.rc_version }}
+  prerelease-version:
+    description: 'Validated prerelease version'
+    value: ${{ steps.validate.outputs.prerelease_version }}
   release-version:
     description: 'Extracted release version'
     value: ${{ steps.validate.outputs.release_version }}
@@ -21,4 +21,4 @@ runs:
       id: validate
       shell: pwsh
       run: |
-        ${{ github.action_path }}/extract-release-version.ps1 -RcVersion "${{ inputs.rc-version }}"
+        ${{ github.action_path }}/extract-release-version.ps1 -PrereleaseVersion "${{ inputs.prerelease-version }}"
