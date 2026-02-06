@@ -84,30 +84,39 @@ $success = $false
 
 while (-not $success -and $retryCount -lt $maxRetries) {
     try {
-        # Use dotnet to download the package
-        Push-Location "temp-artifacts"
-        dotnet add package $PackageName --version $RcVersion --source $sourceName --package-directory . 2>&1 | Out-Null
+        # Create temporary project to download package
+        $tempDir = "temp-artifacts/temp-project"
+        New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
+        
+        # Create minimal .csproj
+        @"
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+</Project>
+"@ | Set-Content "$tempDir/temp.csproj"
+        
+        # Download package using dotnet add
+        Push-Location $tempDir
+        dotnet add package $PackageName --version $RcVersion --source $sourceName --package-directory ../packages 2>&1 | Out-Null
         Pop-Location
         
-        # Find the downloaded nupkg (case-insensitive search)
+        # NuGet downloads to: packages/{package-lowercase}/{version}/{package-lowercase}.{version}.nupkg
         $packageNameLower = $PackageName.ToLower()
-        $expectedPattern = "*$packageNameLower.$RcVersion.nupkg"
-        $downloadedPackage = Get-ChildItem -Path "temp-artifacts" -Filter "*.nupkg" -Recurse | Where-Object { $_.Name -like $expectedPattern }
+        $nupkgPath = "temp-artifacts/packages/$packageNameLower/$RcVersion/$packageNameLower.$RcVersion.nupkg"
         
-        if ($downloadedPackage) {
-            # Move to root of temp-artifacts if in subdirectory
-            if ($downloadedPackage.DirectoryName -ne (Resolve-Path "temp-artifacts").Path) {
-                Move-Item -Path $downloadedPackage.FullName -Destination $outputPath -Force
-            } else {
-                # Rename to expected casing if needed
-                if ($downloadedPackage.Name -ne $packageFileName) {
-                    Rename-Item -Path $downloadedPackage.FullName -NewName $packageFileName -Force
-                }
-            }
+        if (Test-Path $nupkgPath) {
+            # Copy to output location
+            Copy-Item -Path $nupkgPath -Destination $outputPath -Force
             Write-Host "✅ Downloaded $packageFileName" -ForegroundColor Green
             $success = $true
+            
+            # Clean up temp directories
+            Remove-Item -Path $tempDir -Recurse -Force -ErrorAction SilentlyContinue
+            Remove-Item -Path "temp-artifacts/packages" -Recurse -Force -ErrorAction SilentlyContinue
         } else {
-            throw "Package file not found after download"
+            throw "Package not found at expected path: $nupkgPath"
         }
     } catch {
         $retryCount++
