@@ -7,14 +7,14 @@
 .PARAMETER BaseVersion
     Base semantic version (e.g., 1.0.0)
 
-.PARAMETER RunNumber
-    Build run number for prerelease suffix
+.PARAMETER PrereleaseNumber
+    Prerelease number for prerelease suffix
 
 .PARAMETER PrereleaseLabel
     Prerelease label (e.g., rc, beta, alpha)
 
 .EXAMPLE
-    .\generate-prerelease-version.ps1 -BaseVersion "1.0.0" -RunNumber "12" -PrereleaseLabel "rc"
+    .\generate-prerelease-version.ps1 -BaseVersion "1.0.0" -PrereleaseNumber "12" -PrereleaseLabel "rc"
     Output: 1.0.0-rc.12
 #>
 
@@ -23,7 +23,7 @@ param(
     [string]$BaseVersion,
     
     [Parameter(Mandatory=$true)]
-    [string]$RunNumber,
+    [string]$PrereleaseNumber,
 
     [Parameter(Mandatory=$false)]
     [string]$PrereleaseLabel = "rc"
@@ -44,11 +44,11 @@ if ($PrereleaseLabel -notmatch '^[0-9A-Za-z-]+$') {
 }
 
 # Generate prerelease version
-$rcVersion = "$BaseVersion-$PrereleaseLabel.$RunNumber"
+$rcVersion = "$BaseVersion-$PrereleaseLabel.$PrereleaseNumber"
 
 Write-Host "🏷️  Generated prerelease version: $rcVersion" -ForegroundColor Green
 Write-Host "   Base version: $BaseVersion" -ForegroundColor Gray
-Write-Host "   Run number: $RunNumber" -ForegroundColor Gray
+Write-Host "   Prerelease number: $PrereleaseNumber" -ForegroundColor Gray
 Write-Host "   Prerelease label: $PrereleaseLabel" -ForegroundColor Gray
 
 # Output for GitHub Actions

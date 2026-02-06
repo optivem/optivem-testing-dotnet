@@ -5,8 +5,8 @@ inputs:
   base-version:
     description: 'Base semantic version (e.g., 1.0.0)'
     required: true
-  run-number:
-    description: 'Build run number for prerelease suffix'
+  prerelease-number:
+    description: 'Prerelease number for prerelease suffix'
     required: true
   prerelease-label:
     description: 'Prerelease label (e.g., rc, beta, alpha)'
@@ -25,4 +25,4 @@ runs:
       id: generate
       shell: pwsh
       run: |
-        ${{ github.action_path }}/generate-prerelease-version.ps1 -BaseVersion "${{ inputs.base-version }}" -RunNumber "${{ inputs.run-number }}" -PrereleaseLabel "${{ inputs.prerelease-label }}"
+        ${{ github.action_path }}/generate-prerelease-version.ps1 -BaseVersion "${{ inputs.base-version }}" -PrereleaseNumber "${{ inputs.prerelease-number }}" -PrereleaseLabel "${{ inputs.prerelease-label }}"
