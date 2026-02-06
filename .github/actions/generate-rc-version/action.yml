@@ -1,0 +1,24 @@
+name: 'Generate RC Version'
+description: 'Generates RC version by appending -rc.N suffix to base version'
+
+inputs:
+  base-version:
+    description: 'Base semantic version (e.g., 1.0.0)'
+    required: true
+  run-number:
+    description: 'Build run number for RC suffix'
+    required: true
+
+outputs:
+  rc-version:
+    description: 'Generated RC version (e.g., 1.0.0-rc.12)'
+    value: ${{ steps.generate.outputs.rc-version }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Generate RC version
+      id: generate
+      shell: pwsh
+      run: |
+        ${{ github.action_path }}/generate-rc-version.ps1 -BaseVersion "${{ inputs.base-version }}" -RunNumber "${{ inputs.run-number }}"

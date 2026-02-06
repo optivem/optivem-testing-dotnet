@@ -5,11 +5,11 @@
     Validates RC version format and extracts release version
 
 .PARAMETER RcVersion
-    The RC version to validate (e.g., 2026.02.05-rc.47 or 1.0.5-rc.47)
+    The RC version to validate in semantic versioning format (e.g., 1.0.5-rc.47)
 
 .EXAMPLE
-    .\validate-rc-version.ps1 -RcVersion "2026.02.05-rc.47"
     .\validate-rc-version.ps1 -RcVersion "1.0.5-rc.47"
+    .\validate-rc-version.ps1 -RcVersion "2.1.0-rc.3"
 #>
 
 param(
@@ -17,8 +17,10 @@ param(
     [string]$RcVersion
 )
 
-if ($RcVersion -notmatch '-rc\.[0-9]+$') {
-    Write-Host "❌ Invalid RC version format. Expected: X.Y.Z-rc.N or YYYY.MM.DD-rc.N" -ForegroundColor Red
+# Validate semantic versioning format: X.Y.Z-rc.N
+if ($RcVersion -notmatch '^\d+\.\d+\.\d+-rc\.\d+$') {
+    Write-Host "❌ Invalid RC version format. Expected: X.Y.Z-rc.N (semantic versioning)" -ForegroundColor Red
+    Write-Host "   Example: 1.0.0-rc.12, 2.1.5-rc.3" -ForegroundColor Yellow
     exit 1
 }
 

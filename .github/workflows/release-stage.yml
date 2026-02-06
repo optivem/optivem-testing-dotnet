@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       rc_version:
-        description: 'RC version to promote (e.g., 2026.02.05-rc.47, or leave blank for latest RC)'
+        description: 'RC version to promote (e.g., 1.0.0-rc.47, or leave blank for latest RC)'
         required: false
         type: string
 

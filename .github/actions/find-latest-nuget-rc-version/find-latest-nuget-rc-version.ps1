@@ -18,7 +18,7 @@
 
 .EXAMPLE
     .\find-latest-nuget-rc-version.ps1 -GitHubToken $token -Repository "optivem/optivem-testing-dotnet" -PackageName "Optivem.Testing"
-    .\find-latest-nuget-rc-version.ps1 -RcVersion "2026.02.05-rc.47" -GitHubToken $token -Repository "optivem/optivem-testing-dotnet" -PackageName "Optivem.Testing"
+    .\find-latest-nuget-rc-version.ps1 -RcVersion "1.0.5-rc.47" -GitHubToken $token -Repository "optivem/optivem-testing-dotnet" -PackageName "Optivem.Testing"
 #>
 
 param(
