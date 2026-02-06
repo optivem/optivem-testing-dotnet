@@ -1,22 +1,26 @@
 name: 'Check Release Exists'
-description: 'Checks if release version already exists on NuGet.org and in Git tags'
+description: 'Checks if release version already exists in GitHub Packages and Git tags'
 
 inputs:
   release-version:
     description: 'Release version to check'
     required: true
-  package-name:
-    description: 'Package name on NuGet.org'
+  github-token:
+    description: 'GitHub token for API access'
     required: false
-    default: 'Optivem.Testing'
+    default: ${{ github.token }}
+  repository:
+    description: 'GitHub repository (owner/repo)'
+    required: false
+    default: ${{ github.repository }}
 
 runs:
   using: 'composite'
   steps:
-    - name: Check if version exists on NuGet.org
+    - name: Check if version exists in GitHub Packages
       shell: pwsh
       run: |
-        ${{ github.action_path }}/check-nuget-exists.ps1 -ReleaseVersion "${{ inputs.release-version }}" -PackageName "${{ inputs.package-name }}"
+        ${{ github.action_path }}/check-version-exists.ps1 -ReleaseVersion "${{ inputs.release-version }}" -GitHubToken "${{ inputs.github-token }}" -Repository "${{ inputs.repository }}"
     
     - name: Check if Git tag exists
       shell: pwsh

@@ -3,7 +3,7 @@ description: 'Validates RC version format and extracts release version'
 
 inputs:
   rc-version:
-    description: 'RC version to validate (e.g., 2026.02.05-rc.47)'
+    description: 'RC version to validate (e.g., 1.0.5-rc.47)'
     required: true
 
 outputs:
