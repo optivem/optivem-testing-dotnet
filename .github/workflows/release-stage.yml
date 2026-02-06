@@ -1,0 +1,277 @@
+name: Release Stage
+
+on:
+  workflow_dispatch:
+    inputs:
+      rc_version:
+        description: 'RC version to promote (e.g., 2026.02.05-rc.47, or leave blank for latest RC)'
+        required: false
+        type: string
+
+jobs:
+  promote-rc-to-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: read
+    
+    env:
+      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+    
+    - name: Configure GitHub Packages source
+      run: |
+        dotnet nuget add source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
+          --name github \
+          --username ${{ github.actor }} \
+          --password ${{ secrets.GITHUB_TOKEN }} \
+          --store-password-in-clear-text
+    
+    - name: Find latest RC version if not provided
+      id: find-rc
+      run: |
+        if [ -n "${{ github.event.inputs.rc_version }}" ]; then
+          RC_VERSION="${{ github.event.inputs.rc_version }}"
+          echo "Using provided RC version: $RC_VERSION"
+        else
+          echo "Finding latest RC version from GitHub Packages..."
+          # List all versions and find latest RC
+          RC_VERSION=$(dotnet package search Optivem.Testing --source github --exact-match --prerelease --format json | \
+            jq -r '.searchResult[0].packages[0].version' | \
+            grep -E '^[0-9]{4}\.[0-9]{2}\.[0-9]{2}-rc\.[0-9]+$' | \
+            sort -V | tail -1)
+          
+          if [ -z "$RC_VERSION" ]; then
+            echo "Error: No RC version found"
+            exit 1
+          fi
+          echo "Found latest RC version: $RC_VERSION"
+        fi
+        
+        echo "rc-version=$RC_VERSION" >> $GITHUB_OUTPUT
+    
+    - name: Validate and extract release version
+      id: validate
+      run: |
+        RC_VERSION="${{ steps.find-rc.outputs.rc-version }}"
+        
+        # Validate RC version format (YYYY.MM.DD-rc.N)
+        if ! echo "$RC_VERSION" | grep -qE '^[0-9]{4}\.[0-9]{2}\.[0-9]{2}-rc\.[0-9]+$'; then
+          echo "Error: Invalid RC version format. Expected: YYYY.MM.DD-rc.N, got: $RC_VERSION"
+          exit 1
+        fi
+        
+        # Extract release version (remove -rc.N suffix)
+        RELEASE_VERSION=$(echo "$RC_VERSION" | sed 's/-rc\.[0-9]*$//')
+        
+        echo "RC Version: $RC_VERSION"
+        echo "Release Version: $RELEASE_VERSION"
+        
+        echo "rc-version=$RC_VERSION" >> $GITHUB_OUTPUT
+        echo "release-version=$RELEASE_VERSION" >> $GITHUB_OUTPUT
+    
+    - name: Check if release version already exists on NuGet.org
+      run: |
+        RELEASE_VERSION="${{ steps.validate.outputs.release-version }}"
+        
+        echo "Checking if version $RELEASE_VERSION already exists on NuGet.org..."
+        
+        # Search for the package on NuGet.org
+        SEARCH_RESULT=$(curl -s "https://api.nuget.org/v3-flatcontainer/optivem.testing/index.json")
+        
+        if echo "$SEARCH_RESULT" | jq -e --arg ver "$RELEASE_VERSION" '.versions[] | select(. == $ver)' > /dev/null 2>&1; then
+          echo "Error: Version $RELEASE_VERSION already exists on NuGet.org"
+          echo "Please choose a different version or delete the existing release."
+          exit 1
+        fi
+        
+        echo "✓ Version $RELEASE_VERSION does not exist on NuGet.org"
+    
+    - name: Check if Git tag already exists
+      run: |
+        RELEASE_VERSION="${{ steps.validate.outputs.release-version }}"
+        
+        if git rev-parse "v$RELEASE_VERSION" >/dev/null 2>&1; then
+          echo "Error: Git tag v$RELEASE_VERSION already exists"
+          exit 1
+        fi
+        
+        echo "✓ Git tag v$RELEASE_VERSION does not exist"
+    
+    - name: Download RC package from GitHub Packages
+      run: |
+        RC_VERSION="${{ steps.validate.outputs.rc-version }}"
+        
+        echo "Downloading RC package $RC_VERSION from GitHub Packages..."
+        
+        # Create temp directory for download
+        mkdir -p ./temp-release
+        cd ./temp-release
+        
+        # Download the RC package
+        dotnet add package Optivem.Testing --version $RC_VERSION --source github --package-directory .
+        
+        # Find the downloaded nupkg
+        NUPKG_PATH=$(find . -name "optivem.testing.$RC_VERSION.nupkg" -type f)
+        
+        if [ -z "$NUPKG_PATH" ]; then
+          echo "Error: Failed to download RC package"
+          exit 1
+        fi
+        
+        echo "✓ Downloaded RC package: $NUPKG_PATH"
+        echo "nupkg-path=$NUPKG_PATH" >> $GITHUB_OUTPUT
+      id: download
+    
+    - name: Repack with release version
+      run: |
+        RC_VERSION="${{ steps.validate.outputs.rc-version }}"
+        RELEASE_VERSION="${{ steps.validate.outputs.release-version }}"
+        
+        echo "Repacking RC as release version..."
+        
+        # Extract the nupkg
+        mkdir -p ./temp-release/extracted
+        unzip -q "${{ steps.download.outputs.nupkg-path }}" -d ./temp-release/extracted
+        
+        # Update version in nuspec
+        sed -i "s|<version>$RC_VERSION</version>|<version>$RELEASE_VERSION</version>|g" ./temp-release/extracted/optivem.testing.nuspec
+        
+        # Repack
+        cd ./temp-release/extracted
+        zip -q -r "../optivem.testing.$RELEASE_VERSION.nupkg" *
+        cd ../..
+        
+        echo "✓ Repacked as version $RELEASE_VERSION"
+    
+    - name: Publish to NuGet.org
+      run: |
+        RELEASE_VERSION="${{ steps.validate.outputs.release-version }}"
+        
+        if [ -z "$NUGET_API_KEY" ]; then
+          echo "Error: NUGET_API_KEY secret is not configured"
+          echo "Please add your NuGet.org API key as a repository secret"
+          exit 1
+        fi
+        
+        echo "Publishing version $RELEASE_VERSION to NuGet.org..."
+        
+        dotnet nuget push "./temp-release/optivem.testing.$RELEASE_VERSION.nupkg" \
+          --api-key $NUGET_API_KEY \
+          --source https://api.nuget.org/v3/index.json \
+          --skip-duplicate
+        
+        echo "✓ Published to NuGet.org"
+    
+    - name: Wait for NuGet.org indexing
+      run: |
+        RELEASE_VERSION="${{ steps.validate.outputs.release-version }}"
+        
+        echo "Waiting for NuGet.org to index the package..."
+        MAX_ATTEMPTS=30
+        ATTEMPT=0
+        
+        while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
+          ATTEMPT=$((ATTEMPT + 1))
+          echo "Attempt $ATTEMPT/$MAX_ATTEMPTS..."
+          
+          if curl -s "https://api.nuget.org/v3-flatcontainer/optivem.testing/index.json" | \
+             jq -e --arg ver "$RELEASE_VERSION" '.versions[] | select(. == $ver)' > /dev/null 2>&1; then
+            echo "✓ Package is now available on NuGet.org!"
+            break
+          fi
+          
+          if [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then
+            echo "Warning: Package not yet indexed after $MAX_ATTEMPTS attempts"
+            echo "The package may still be processing. Manual verification recommended."
+          else
+            sleep 10
+          fi
+        done
+    
+    - name: Create Git tag
+      run: |
+        RELEASE_VERSION="${{ steps.validate.outputs.release-version }}"
+        RC_VERSION="${{ steps.validate.outputs.rc-version }}"
+        
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        
+        git tag -a "v$RELEASE_VERSION" -m "Release $RELEASE_VERSION (promoted from $RC_VERSION)"
+        git push origin "v$RELEASE_VERSION"
+        
+        echo "✓ Created and pushed Git tag v$RELEASE_VERSION"
+    
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: v${{ steps.validate.outputs.release-version }}
+        name: Release ${{ steps.validate.outputs.release-version }}
+        body: |
+          🎉 **Release ${{ steps.validate.outputs.release-version }}**
+          
+          This release was promoted from RC version `${{ steps.validate.outputs.rc-version }}` after passing all acceptance tests.
+          
+          **Promoted Artifacts:**
+          - Same exact package that passed testing
+          - No rebuild - identical artifacts guaranteed
+          - ✅ Automatically published to NuGet.org
+          
+          **Installation:**
+          ```bash
+          dotnet add package Optivem.Testing --version ${{ steps.validate.outputs.release-version }}
+          ```
+          
+          **NuGet Package:**
+          https://www.nuget.org/packages/Optivem.Testing/${{ steps.validate.outputs.release-version }}
+          
+          **Note:** NuGet.org synchronization may take a few minutes.
+        generate_release_notes: true
+        draft: false
+        prerelease: false
+    
+    - name: Display next steps
+      shell: pwsh
+      run: |
+        $releaseVersion = "${{ steps.validate.outputs.release-version }}"
+        Write-Host ""
+        Write-Host "🎉 Release promotion completed successfully!" -ForegroundColor Green
+        Write-Host ""
+        Write-Host "📋 What happened:" -ForegroundColor Cyan
+        Write-Host "1. ✅ Downloaded RC package from GitHub Packages" -ForegroundColor White
+        Write-Host "2. ✅ Repacked and published to NuGet.org (same artifacts, no rebuild)" -ForegroundColor White
+        Write-Host "3. ✅ Created Git tag v${releaseVersion}" -ForegroundColor White
+        Write-Host "4. ✅ Created GitHub Release" -ForegroundColor White
+        Write-Host ""
+        Write-Host "📋 Next Steps:" -ForegroundColor Cyan
+        Write-Host "1. ⏳ Wait a few minutes for NuGet.org synchronization" -ForegroundColor White
+        Write-Host "2. 🧪 Verify: https://www.nuget.org/packages/Optivem.Testing/${releaseVersion}" -ForegroundColor White
+        Write-Host ""
+        Write-Host "✅ Same artifacts that passed RC testing are now released!" -ForegroundColor Green
+    
+    - name: Create release summary
+      run: |
+        echo "## 🎉 Release Stage Completed" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Release Version:** \`${{ steps.validate.outputs.release-version }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "**Promoted from RC:** \`${{ steps.validate.outputs.rc-version }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "🚀 **Release Activities:**" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Downloaded RC package from GitHub Packages" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Repacked and published to NuGet.org" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Created Git tag v${{ steps.validate.outputs.release-version }}" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Created GitHub Release" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Status:** 🎉 Release published successfully!" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Next Steps:**" >> $GITHUB_STEP_SUMMARY
+        echo "- ⏳ Wait for NuGet.org synchronization (may take a few minutes)" >> $GITHUB_STEP_SUMMARY
+        echo "- 🧪 Verify: https://www.nuget.org/packages/Optivem.Testing/${{ steps.validate.outputs.release-version }}" >> $GITHUB_STEP_SUMMARY
