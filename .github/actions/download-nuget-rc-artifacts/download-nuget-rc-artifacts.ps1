@@ -99,12 +99,17 @@ while (-not $success -and $retryCount -lt $maxRetries) {
         
         # Download package using dotnet add
         Push-Location $tempDir
-        dotnet add package $PackageName --version $RcVersion --source $sourceName --package-directory ../packages 2>&1 | Out-Null
+        $downloadOutput = dotnet add package $PackageName --version $RcVersion --source $sourceName --package-directory ../packages 2>&1
         Pop-Location
+        
+        Write-Host "   Download command output:" -ForegroundColor Gray
+        Write-Host "   $downloadOutput" -ForegroundColor Gray
         
         # NuGet downloads to: packages/{package-lowercase}/{version}/{package-lowercase}.{version}.nupkg
         $packageNameLower = $PackageName.ToLower()
         $nupkgPath = "temp-artifacts/packages/$packageNameLower/$RcVersion/$packageNameLower.$RcVersion.nupkg"
+        
+        Write-Host "   Looking for package at: $nupkgPath" -ForegroundColor Gray
         
         if (Test-Path $nupkgPath) {
             # Copy to output location
@@ -116,6 +121,17 @@ while (-not $success -and $retryCount -lt $maxRetries) {
             Remove-Item -Path $tempDir -Recurse -Force -ErrorAction SilentlyContinue
             Remove-Item -Path "temp-artifacts/packages" -Recurse -Force -ErrorAction SilentlyContinue
         } else {
+            Write-Host "   ❌ Package not found at expected path" -ForegroundColor Yellow
+            Write-Host "   Searching for .nupkg files in temp-artifacts..." -ForegroundColor Yellow
+            $allFiles = Get-ChildItem -Path "temp-artifacts" -Recurse -ErrorAction SilentlyContinue
+            if ($allFiles) {
+                Write-Host "   Files found:" -ForegroundColor Gray
+                foreach ($file in $allFiles) {
+                    Write-Host "     $($file.FullName)" -ForegroundColor Gray
+                }
+            } else {
+                Write-Host "   No files found in temp-artifacts" -ForegroundColor Red
+            }
             throw "Package not found at expected path: $nupkgPath"
         }
     } catch {
