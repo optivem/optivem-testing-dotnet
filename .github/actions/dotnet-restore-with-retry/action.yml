@@ -8,11 +8,11 @@ inputs:
   version:
     description: 'Package version to pass via -p:Version'
     required: true
-  max-attempts:
+  max-retries:
     description: 'Maximum number of restore attempts'
     required: false
     default: '5'
-  wait-seconds:
+  interval-seconds:
     description: 'Seconds to wait between attempts'
     required: false
     default: '30'
@@ -29,6 +29,6 @@ runs:
       with:
         check-script: '../dotnet-restore-with-retry/check-dotnet-restore.ps1'
         script-args: '${{ inputs.project-path }} ${{ inputs.version }} ${{ inputs.extra-args }}'
-        max-attempts: '${{ inputs.max-attempts }}'
-        poll-interval: '${{ inputs.wait-seconds }}'
+        max-retries: '${{ inputs.max-retries }}'
+        interval-seconds: '${{ inputs.interval-seconds }}'
         condition-name: 'dotnet restore of ${{ inputs.project-path }}'

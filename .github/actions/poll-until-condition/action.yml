@@ -9,11 +9,11 @@ inputs:
     description: 'Arguments to pass to the check script (space-separated)'
     required: false
     default: ''
-  max-attempts:
+  max-retries:
     description: 'Maximum number of polling attempts'
     required: false
     default: '60'
-  poll-interval:
+  interval-seconds:
     description: 'Seconds between polling attempts'
     required: false
     default: '60'
@@ -31,6 +31,6 @@ runs:
         ${{ github.action_path }}/poll-until-condition.ps1 `
           -CheckScript "${{ inputs.check-script }}" `
           -ScriptArgs "${{ inputs.script-args }}" `
-          -MaxAttempts ${{ inputs.max-attempts }} `
-          -PollInterval ${{ inputs.poll-interval }} `
+          -MaxRetries ${{ inputs.max-retries }} `
+          -IntervalSeconds ${{ inputs.interval-seconds }} `
           -ConditionName "${{ inputs.condition-name }}"

@@ -8,11 +8,11 @@ inputs:
   version:
     description: 'Package version to wait for'
     required: true
-  max-attempts:
+  max-retries:
     description: 'Maximum number of polling attempts'
     required: false
     default: '30'
-  poll-interval:
+  interval-seconds:
     description: 'Seconds between polling attempts'
     required: false
     default: '10'
@@ -25,6 +25,6 @@ runs:
       with:
         check-script: '../wait-for-nuget-indexing/check-nuget-available.ps1'
         script-args: '${{ inputs.package-name }} ${{ inputs.version }}'
-        max-attempts: '${{ inputs.max-attempts }}'
-        poll-interval: '${{ inputs.poll-interval }}'
+        max-retries: '${{ inputs.max-retries }}'
+        interval-seconds: '${{ inputs.interval-seconds }}'
         condition-name: 'NuGet.org indexing of ${{ inputs.package-name }} ${{ inputs.version }}'

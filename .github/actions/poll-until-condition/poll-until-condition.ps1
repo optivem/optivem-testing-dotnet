@@ -6,10 +6,10 @@ param(
     [string]$ScriptArgs = "",
     
     [Parameter(Mandatory=$false)]
-    [int]$MaxAttempts = 30,
+    [int]$MaxRetries = 30,
     
     [Parameter(Mandatory=$false)]
-    [int]$PollInterval = 10,
+    [int]$IntervalSeconds = 10,
     
     [Parameter(Mandatory=$false)]
     [string]$ConditionName = "condition"
@@ -17,8 +17,8 @@ param(
 
 Write-Host "⏳ Polling until $ConditionName is met..." -ForegroundColor Blue
 Write-Host "   Check script: $CheckScript" -ForegroundColor Gray
-Write-Host "   Max attempts: $MaxAttempts" -ForegroundColor Gray
-Write-Host "   Poll interval: ${PollInterval}s" -ForegroundColor Gray
+Write-Host "   Max retries: $MaxRetries" -ForegroundColor Gray
+Write-Host "   Interval: ${IntervalSeconds}s" -ForegroundColor Gray
 Write-Host ""
 
 $attempt = 0
@@ -33,10 +33,10 @@ if (-not (Test-Path $scriptPath)) {
     exit 1
 }
 
-while ($attempt -lt $MaxAttempts) {
+while ($attempt -lt $MaxRetries) {
     $attempt++
     
-    Write-Host "[$attempt/$MaxAttempts] Checking $ConditionName..." -ForegroundColor Yellow
+    Write-Host "[$attempt/$MaxRetries] Checking $ConditionName..." -ForegroundColor Yellow
     
     try {
         # Execute the check script with arguments
@@ -67,14 +67,14 @@ while ($attempt -lt $MaxAttempts) {
         Write-Host "   ⚠️  Error running check script: $($_.Exception.Message)" -ForegroundColor Yellow
     }
     
-    if ($attempt -lt $MaxAttempts -and -not $conditionMet) {
-        Write-Host "   Waiting ${PollInterval}s before next check..." -ForegroundColor Gray
-        Start-Sleep -Seconds $PollInterval
+    if ($attempt -lt $MaxRetries -and -not $conditionMet) {
+        Write-Host "   Waiting ${IntervalSeconds}s before next check..." -ForegroundColor Gray
+        Start-Sleep -Seconds $IntervalSeconds
     }
 }
 
 if (-not $conditionMet) {
     Write-Host ""
-    Write-Host "❌ Timed out waiting for '$ConditionName' after $MaxAttempts attempts" -ForegroundColor Red
+    Write-Host "❌ Timed out waiting for '$ConditionName' after $MaxRetries attempts" -ForegroundColor Red
     exit 1
 }
