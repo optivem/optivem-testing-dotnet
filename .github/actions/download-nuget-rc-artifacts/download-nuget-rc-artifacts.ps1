@@ -89,13 +89,20 @@ while (-not $success -and $retryCount -lt $maxRetries) {
         dotnet add package $PackageName --version $RcVersion --source $sourceName --package-directory . 2>&1 | Out-Null
         Pop-Location
         
-        # Find the downloaded nupkg
-        $downloadedPackage = Get-ChildItem -Path "temp-artifacts" -Filter "*.nupkg" -Recurse | Where-Object { $_.Name -like "$PackageName.$RcVersion.nupkg" }
+        # Find the downloaded nupkg (case-insensitive search)
+        $packageNameLower = $PackageName.ToLower()
+        $expectedPattern = "*$packageNameLower.$RcVersion.nupkg"
+        $downloadedPackage = Get-ChildItem -Path "temp-artifacts" -Filter "*.nupkg" -Recurse | Where-Object { $_.Name -like $expectedPattern }
         
         if ($downloadedPackage) {
             # Move to root of temp-artifacts if in subdirectory
             if ($downloadedPackage.DirectoryName -ne (Resolve-Path "temp-artifacts").Path) {
                 Move-Item -Path $downloadedPackage.FullName -Destination $outputPath -Force
+            } else {
+                # Rename to expected casing if needed
+                if ($downloadedPackage.Name -ne $packageFileName) {
+                    Rename-Item -Path $downloadedPackage.FullName -NewName $packageFileName -Force
+                }
             }
             Write-Host "✅ Downloaded $packageFileName" -ForegroundColor Green
             $success = $true
