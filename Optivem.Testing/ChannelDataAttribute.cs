@@ -59,6 +59,16 @@ public class ChannelDataAttribute : DataAttribute
         // Check for incorrect usage of standard xUnit attributes
         ValidateNoStandardXUnitAttributes(testMethod);
 
+        // Filter channels by CHANNEL env var when set (enables Run-SystemTests.ps1 API vs UI separation)
+        var channelsToUse = _channels;
+        var channelEnv = Environment.GetEnvironmentVariable("CHANNEL");
+        if (!string.IsNullOrEmpty(channelEnv))
+        {
+            var filtered = _channels.Where(c => string.Equals(c, channelEnv, StringComparison.OrdinalIgnoreCase)).ToArray();
+            if (filtered.Length > 0)
+                channelsToUse = filtered;
+        }
+
         // Check for ChannelInlineData attributes
         var inlineDataAttributes = testMethod
             .GetCustomAttributes(typeof(ChannelInlineDataAttribute), false)
@@ -76,7 +86,7 @@ public class ChannelDataAttribute : DataAttribute
         // If no inline data, class data, or member data, just return channels (simple mode)
         if (inlineDataAttributes.Length == 0 && classDataAttribute == null && memberDataAttribute == null)
         {
-            foreach (var channel in _channels)
+            foreach (var channel in channelsToUse)
             {
                 yield return new object[] { new Channel(channel) };
             }
@@ -84,8 +94,8 @@ public class ChannelDataAttribute : DataAttribute
         // If ChannelInlineData is present
         else if (inlineDataAttributes.Length > 0)
         {
-            // Create Cartesian product: channels � inline data (combinatorial mode)
-            foreach (var channel in _channels)
+            // Create Cartesian product: channels × inline data (combinatorial mode)
+            foreach (var channel in channelsToUse)
             {
                 foreach (var inlineDataAttr in inlineDataAttributes)
                 {
@@ -106,8 +116,8 @@ public class ChannelDataAttribute : DataAttribute
                     $"Type {classDataAttribute.ProviderType.Name} must implement IEnumerable<object[]>");
             }
 
-            // Create Cartesian product: channels � class data
-            foreach (var channel in _channels)
+            // Create Cartesian product: channels × class data
+            foreach (var channel in channelsToUse)
             {
                 foreach (var dataRow in dataProvider)
                 {
@@ -153,8 +163,8 @@ public class ChannelDataAttribute : DataAttribute
                     $"Member '{memberDataAttribute.MemberName}' must return IEnumerable<object[]>");
             }
 
-            // Create Cartesian product: channels � member data
-            foreach (var channel in _channels)
+            // Create Cartesian product: channels × member data
+            foreach (var channel in channelsToUse)
             {
                 foreach (var dataRow in dataProvider)
                 {
