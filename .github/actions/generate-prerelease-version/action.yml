@@ -21,7 +21,7 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    - name: Generate RC version
+    - name: Generate Prerelease Version
       id: generate
       shell: pwsh
       run: |

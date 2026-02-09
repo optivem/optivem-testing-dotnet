@@ -47,7 +47,7 @@ jobs:
         package-name: 'Optivem.Testing'
     
     - name: Check if Git tag already exists
-      uses: ./.github/actions/check-tag-exists
+      uses: optivem/check-tag-exists-action@v1
       with:
         tag-name: v${{ steps.validate.outputs.release-version }}
     
