@@ -36,7 +36,7 @@ jobs:
     
     - name: Extract release version from prerelease
       id: validate
-      uses: ./.github/actions/extract-release-version
+      uses: optivem/extract-release-version-action@v1
       with:
         prerelease-version: ${{ steps.find-rc.outputs.rc-version }}
     
