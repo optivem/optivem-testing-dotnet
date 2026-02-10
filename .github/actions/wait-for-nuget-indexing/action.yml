@@ -21,7 +21,7 @@ runs:
   using: 'composite'
   steps:
     - name: Wait for package indexing
-      uses: ./.github/actions/poll-until-condition
+      uses: ./.github/actions/poll-until
       with:
         check-script: '../wait-for-nuget-indexing/check-nuget-available.ps1'
         script-args: '${{ inputs.package-name }} ${{ inputs.version }}'

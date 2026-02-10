@@ -25,7 +25,7 @@ runs:
   using: 'composite'
   steps:
     - name: Restore with retry
-      uses: ./.github/actions/poll-until-condition
+      uses: ./.github/actions/poll-until
       with:
         check-script: '../dotnet-restore-with-retry/check-dotnet-restore.ps1'
         script-args: '${{ inputs.project-path }} ${{ inputs.version }} ${{ inputs.extra-args }}'

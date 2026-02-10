@@ -21,7 +21,7 @@ runs:
   using: 'composite'
   steps:
     - name: Wait for deployment state
-      uses: ./.github/actions/poll-until-condition
+      uses: ./.github/actions/poll-until
       with:
         check-script: '../wait-for-maven-deployment-validation/check-deployment-state.ps1'
         script-args: '${{ inputs.deployment-id }} ${{ inputs.expected-state }}'

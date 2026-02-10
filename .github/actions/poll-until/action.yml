@@ -1,5 +1,5 @@
-name: 'Poll Until Condition'
-description: 'Generic polling action that runs a check script until condition is met or timeout'
+name: 'Poll Until'
+description: 'Runs a check script repeatedly until condition is met or timeout'
 
 inputs:
   check-script:
@@ -28,7 +28,7 @@ runs:
     - name: Poll until condition met
       shell: pwsh
       run: |
-        ${{ github.action_path }}/poll-until-condition.ps1 `
+        ${{ github.action_path }}/poll-until.ps1 `
           -CheckScript "${{ inputs.check-script }}" `
           -ScriptArgs "${{ inputs.script-args }}" `
           -MaxRetries ${{ inputs.max-retries }} `
