@@ -34,7 +34,7 @@ jobs:
     
     - name: Generate RC version
       id: version
-      uses: ./.github/actions/generate-prerelease-version
+      uses: optivem/generate-prerelease-version-action@v2
       with:
         base-version: ${{ steps.base-version.outputs.version }}
         prerelease-number: ${{ github.run_number }}
