@@ -21,9 +21,9 @@ runs:
   using: 'composite'
   steps:
     - name: Wait for package indexing
-      uses: ./.github/actions/poll-until
+      uses: optivem/poll-until-action@v1
       with:
-        check-script: '../wait-for-nuget-indexing/check-nuget-available.ps1'
+        check-script: '.github/actions/wait-for-nuget-indexing/check-nuget-available.ps1'
         script-args: '${{ inputs.package-name }} ${{ inputs.version }}'
         max-retries: '${{ inputs.max-retries }}'
         interval-seconds: '${{ inputs.interval-seconds }}'

@@ -25,9 +25,9 @@ runs:
   using: 'composite'
   steps:
     - name: Restore with retry
-      uses: ./.github/actions/poll-until
+      uses: optivem/poll-until-action@v1
       with:
-        check-script: '../dotnet-restore-with-retry/check-dotnet-restore.ps1'
+        check-script: '.github/actions/dotnet-restore-with-retry/check-dotnet-restore.ps1'
         script-args: '${{ inputs.project-path }} ${{ inputs.version }} ${{ inputs.extra-args }}'
         max-retries: '${{ inputs.max-retries }}'
         interval-seconds: '${{ inputs.interval-seconds }}'
